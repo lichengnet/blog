@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、nginx的upstream目前支持负载均衡方式的分配1、RR（默认）每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。例如：upstream tomcats {server 10.1.1.107:88  max_fails=3 fail_timeout=3s weight=9;s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx负载均衡详解">
+<meta property="og:url" content="http://yoursite.com/2015/acd55720/index.html">
+<meta property="og:site_name" content="bengou&#39;s blog">
+<meta property="og:description" content="一、nginx的upstream目前支持负载均衡方式的分配1、RR（默认）每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。例如：upstream tomcats {server 10.1.1.107:88  max_fails=3 fail_timeout=3s weight=9;server 10.1.1.132:80  max_fails=3 fail_ti">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-27T10:47:27.709Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nginx负载均衡详解">
+<meta name="twitter:description" content="一、nginx的upstream目前支持负载均衡方式的分配1、RR（默认）每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。例如：upstream tomcats {server 10.1.1.107:88  max_fails=3 fail_timeout=3s weight=9;server 10.1.1.132:80  max_fails=3 fail_ti">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/acd55720/"/>
+
+
+
+
+
+  <title>Nginx负载均衡详解 | bengou's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bengou's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">点滴记录，沉思总结，成长分享。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/acd55720/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="watcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bengou's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Nginx负载均衡详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-03-25T11:33:37+08:00">
+                2015-03-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构设计/" itemprop="url" rel="index">
+                    <span itemprop="name">架构设计</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一、nginx的upstream目前支持负载均衡方式的分配<br>1、RR（默认）<br>每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。<br>例如：<br>upstream tomcats {<br>server 10.1.1.107:88  max_fails=3 fail_timeout=3s weight=9;<br>server 10.1.1.132:80  max_fails=3 fail_timeout=3s weight=9;<br>}</p>
+<p>2、ip_hash<br>每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。<br>例如：<br>upstream tomcats {<br>ip_hash;<br>server 10.1.1.107:88;<br>server 10.1.1.132:80;<br>}</p>
+<p>3、fair（第三方）<br>按后端服务器的响应时间来分配请求，响应时间短的优先分配。</p>
+<p>4、url_hash（第三方）<br>按访问url的hash结果来分配请求，使每个url定向到同一个后端服务器，后端服务器为缓存时比较有效。</p>
+<p>下面，我们针对RR和ip_hash的负载均衡策略进行分析。因为每一种负载均衡策略都是在upstream的框架中使用，upstream控制总的工作流程，负载均衡策略仅仅提供选择或释放server的函数，所以，我们在分析RR时结合upstream（ngx_http_upstream.c）。 ip_hash大部分内容与RR一致，只是重新实现RR中的ngx_http_upstream_get_peer函数。</p>
+<p>二、RR策略<br>RR机制分为三个部分：初始化upstream，获取一个可用的后台服务器和释放后台服务器。<br>以下分析以此配置为例:<br>upstream backend  {<br>server  A  max_fails=3 fail_timeout=4s weight=9;<br>server  B  max_fails=3 fail_timeout=4s weight=9;<br>server  C  max_fails=3 fail_timeout=4s weight=9;<br>server  D  backup;<br>Server  E  backup;<br>}</p>
+<p>2.1 初始化upstream</p>
+<p>对于例子中的upstream backend来说，</p>
+<p>首先初始化各个server, 除了设置IP和端口号外，还要设置如下置weight，current_weight，max_fails和fail_timeout。其中max_fails和fail_timeout 这两个参数是组合使用的，表示server 如果失败次数达到max_fails 次，并保持fail_timeout秒之内该服务器不能被访问。<br>对于serverA来说，设置如下<br>serverA.weight =9;<br>serverA.current_weight = 9;  //初始值等于配置文件中的weight.<br>serverA.max_fails = 3;<br>serverA.fail_timeout = 4;</p>
+<p>接着，创建两个server类型（在下文介绍中，server类型等同于peer类型，都是用来指明存储upstream中一个server的信息）的数组，peers和backup，分别存储正常的轮循server和备用server. 并且，按照数组中各个server的weight值的大小，由高到底排序。<br>本例中，在数组peers中存储serverA、serverB和 serverC, 并记录server的总个数peers-&gt;number=3; 在数组backup中存储serverD和 serverE, 并记录server的总个数backup-&gt;number=2;</p>
+<p>最后，设置upstream中各个变量的值。<br>rrp  表示当前要轮循的server数组，初始设置为Upstream-&gt;rrp = peers.<br>tries 表示尝试的次数，当尝试一个server失败后，tries的值就会减一。初始设置为peers的总个数。<br>Next 表示当peers数组中server都失败，不能提供服务了，通过upstream-&gt;next，切换到back数组中选择server.</p>
+<p>2.2 具体的RR策略</p>
+<p>2.2.1 ） 选择最初要轮循的server,  把它给rrp-&gt;current变量，跳转到2.2.2<br>当一个客户端请求到达nginx后，nginx就会在upstream的peers 数组中挑选一个current_weight最大的server作为当前请求最初要轮循的server. 在peers数组中选取current_weight最大的算法如下：<br>由于peers数组中的server是按照weight值的大小排序好的。<br>它是通过双重循环，满足下列条件后,<br>if (peer[n].current_weight <em> 1000 / peer[i].current_weight &gt; peer[n].weight </em> 1000 / peer[i].weight)  //peer[i].current_weight不为0<br>并且该server的current_weight大于0，就选择sever  n, 把编号n赋给rrp-&gt;current，成功返回。<br>如果当upstream的peers 数组中的所有server的current_weight都为零时，立即无条件地把所有server的current_weight设置为初始值。for (i = 0; i &lt; peers-&gt;number; i++) {<br>peer[i].current_weight = peer[i].weight;<br>}<br>然后，当所有server的current_weight设置为初始值后，重新查找peers 数组中current_weight最大的server。把编号赋给rrp-&gt;current，返回。</p>
+<p>2.2.2 判断当前rrp-&gt;current所指向的server是否有效，如果无效，就会让rrp-&gt;current++，判断peers数组中下一个server，是否有效。至到找到有效的server为止. 跳转到2.2.3; 否则跳转到2.2.2.1</p>
+<p>判断server 是否有效的方法是：<br>1）如果server的失败次数（peers-&gt;peer[i].fails）没有达到了max_fails所设置的最大失败次数，则该server是有效的。<br>2）如果server已经达到了max_fails所设置的最大失败次数，从这一时刻开始算起，在fail_timeout 所设置的时间段内， server是无效的。<br>3）当server的失败次数（peers-&gt;peer[i].fails）为最大的失败次数，当距离现在的时间超过了fail_timeout 所设置的时间段， 则令peers-&gt;peer[i].fails =0，使得该server重新有效。</p>
+<p>2.2.2.1如果peers中所有的server都是无效的; 就会尝试去backup的数组中找一个有效的server, 如果找到， 跳转到2.2.3; 如果仍然找不到，表示此时upstream中无server可以使用。就会清空所有peers数组中所有的失败次数的记录，使所有server都变成了有效。这样做的目的是为了防止下次再有请求访问时，仍找不到一个有效的server.<br>for (i = 0; i &lt; peers-&gt;number; i++) {<br>peers-&gt;peer[i].fails = 0;<br>}<br>并返回错误码给nginx,  nginx得到此错误码后，就不再向后台server发请求，而是在nginx的错误日志中输出“no live upstreams while connecting to upstream”的记录（这就是no live产生的真正原因），并直接返回给请求的客户端一个502的错误。</p>
+<p>2.2.3 当找到一个有效的server后，令该server的current_weight减一，然后，nginx就会尝试与该server建立连接。如果成功建立连接，跳转到2.2.4; 否则 跳转到2.2..3.1<br>2.2..3.1 如果nginx在等待了proxy_connect_timeout所设置的时间段后（如3秒），连接仍然没有建立成功，nginx就在错误日志中输出“upstream timed out (110: Connection timed out) while connecting to upstream”的记录（这就是 timed out（连接超时）产生的真正原因）.<br>2.2.3 .2 接着，让当前server的失败次数加一（peer-&gt;fails++; 如果该server最大失败次达到最大失败次数，将在一段时间内该server是无效的），如果当前nginx与后台服务器的尝试次数没有达到upstream中server的总个数，重新跳转到2.2.2, 轮循下一个server, 继续尝试。如果达到最大尝试次数，就表示uptream中所有的server都尝试了一遍，没有server可以提供服务，返回一个504的错误给客户端。</p>
+<p>2.2.4 当nginx与server建立连接成功后，如果server响应请求，把处理结果返回给nginx,<br>跳转到2.2.5; 否则跳转到2.2.4.1<br>2.2.4.1 如果nginx在等待了proxy_read_timeout所设置的时间段后（如30秒），server仍然没有对nginx发送来的请求作出响应，nginx就在错误日志中输出“upstream timed out (110: Connection timed out) while reading response header from upstream”的记录（这就是 timed out（读超时）产生的真正原因）.<br>2.2.4.2 接着，让当前server的失败次数加一（peer-&gt;fails++; 如果该server最大失败次达到最大失败次数，将在一段时间内该server是无效的），如果当前nginx与后台服务器的尝试次数没有达到upstream中server的总个数，重新跳转到2.2.2, 轮循下一个server, 继续尝试。如果达到最大尝试次数，就表示uptream中所有的server都尝试了一遍，没有server可以提供服务，返回一个504的错误给客户端。</p>
+<p>2.2.5 Nginx收到后台server传送过来的结果后，就会返回给客户端一个200的正确结果。这样，nginx作为反向代理的功能也就完成了。</p>
+<p>三、Ip_hash策略<br>3.1 Ip_hash和RR 的策略有两点不同在于：</p>
+<p>当一个客户请求到nginx后，<br>1）nginx如何选择一个最初的server,<br>2）以及当前选择的server不能提供服务时，如何选择下一个server.</p>
+<p>3.2  RR策略回顾<br>从第二部分对RR的介绍中，我们知道：<br>当一个客户请求到达后，RR策略是从upstream的所有server中选择一个当前权重（current_weight）最大的server作为最初的server.<br>upstream的所有server是按照由高到低排序后存储在一个peers数组中，当最初选择的server不能提供服务时，RR策略就会选择peers数组中的下一个元素作为当前server，继续尝试， 如果已经达到数组的最大元素，就会从第一个元素再轮循。</p>
+<p>3.3 ip_hash策略介绍<br>在ip_hash策略中，它选择最初的server的方法是根据请求客户端的IP计算出一个哈希值，再根据哈希值选择后台的服务器。<br>1）由IP计算哈希值的算法如下， 其中公式中hash初始值为89，iphp-&gt;addr[i]表示客户端的IP， 通过三次哈希计算得出一个IP的哈希值：<br>for (i = 0; i &lt; 3; i++) {<br>hash = (hash * 113 + iphp-&gt;addr[i]) % 6271;<br>}</p>
+<p>2）在选择下一个server时，ip_hash的选择策略是这样的：<br>它在上一次哈希值的基础上，再次哈希，就会得到一个全新的哈希值，再根据哈希值选择另外一个后台的服务器。<br>哈希算法仍然是<br>for (i = 0; i &lt; 3; i++) {<br>hash = (hash * 113 + iphp-&gt;addr[i]) % 6271;<br>}</p>
+<p>在这种ip_hash策略，如果一个后台服务器不能提供提服务（连接超时或读超时），该服务器的失败次数就会加一，当一个服务器的失败次数达到max_fails所设置的值，就会在fail_timeout所设置的时间段内不能对外提供服务，这点和RR是一致的。<br>如果当前server不能提供服务，就会根据当前的哈希值再哈希出一个新哈希值，选择另一个服务器继续尝试，尝试的最大次是upstream中server的个数，如果server的个数超过20，也就是要最大尝试次数在20次以上，当尝试次数达到20次，仍然找不到一个合适的服务器，ip_hah策略不再尝试ip哈希值来选择server, 而在剩余的尝试中，它会转而使用RR的策略，使用轮循的方法，选择新的server。<br>3）除了以上部分不同外，IP_hash的其余部分和RR完全一样，因为它的其余部分功能的实现都是通过调用RR中的函数。<br>4）IP_hash优势是把同一个客户IP的请求分配给同一个后台服务器。</p>
+<blockquote>
+<p>#设定http服务器，利用它的反向代理功能提供负载均衡支持</p>
+<p>http {</p>
+<p>#设定mime类型,类型由mime.type文件定义</p>
+<p>include /etc/nginx/mime.types;</p>
+<p>default_type application/octet-stream;</p>
+<p>#设定日志格式</p>
+<p>access_log /var/log/nginx/access.log;</p>
+<p>#省略上文有的一些配置节点</p>
+</blockquote>
+<p>#。。。。。。。。。。</p>
+<p>#设定负载均衡的服务器列表<br>upstream mysvr {</p>
+<p>#weigth参数表示权值，权值越高被分配到的几率越大<br>server 192.168.8.1x:3128 weight=5;#本机上的Squid开启3128端口<br>server 192.168.8.2x:80 weight=1;<br>server 192.168.8.3x:80 weight=6;<br>}</p>
+<p>upstream mysvr2 {</p>
+<p>#weigth参数表示权值，权值越高被分配到的几率越大</p>
+<p>server 192.168.8.x:80 weight=1;<br>server 192.168.8.x:80 weight=6;<br>}</p>
+<p>#第一个虚拟服务器<br>server {</p>
+<p>#侦听192.168.8.x的80端口<br>listen 80;<br>server_name 192.168.8.x;</p>
+<p>#对aspx后缀的进行负载均衡请求<br>location ~ .*.aspx$ {</p>
+<p>root /root; #定义服务器的默认网站根目录位置<br>index index.php index.html index.htm; #定义首页索引文件的名称</p>
+<p>proxy_pass <a href="http://mysvr" target="_blank" rel="noopener">http://mysvr</a> ;#请求转向mysvr 定义的服务器列表</p>
+<p>#以下是一些反向代理的配置可删除.</p>
+<p>proxy_redirect off;</p>
+<p>#后端的Web服务器可以通过X-Forwarded-For获取用户真实IP<br>proxy_set_header Host $host;<br>proxy_set_header X-Real-IP $remote_addr;<br>proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;<br>client_max_body_size 10m; #允许客户端请求的最大单文件字节数<br>client_body_buffer_size 128k; #缓冲区代理缓冲用户端请求的最大字节数，<br>proxy_connect_timeout 90; #nginx跟后端服务器连接超时时间(代理连接超时)<br>proxy_send_timeout 90; #后端服务器数据回传时间(代理发送超时)<br>proxy_read_timeout 90; #连接成功后，后端服务器响应时间(代理接收超时)<br>proxy_buffer_size 4k; #设置代理服务器（nginx）保存用户头信息的缓冲区大小<br>proxy_buffers 4 32k; #proxy_buffers缓冲区，网页平均在32k以下的话，这样设置<br>proxy_busy_buffers_size 64k; #高负荷下缓冲大小（proxy_buffers*2）<br>proxy_temp_file_write_size 64k; #设定缓存文件夹大小，大于这个值，将从upstream服务器传</p>
+<p>}</p>
+<p>}<br>}</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/bd57ace3/" rel="next" title="B树、B-树、B+树、B*树图解">
+                <i class="fa fa-chevron-left"></i> B树、B-树、B+树、B*树图解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/37affeae/" rel="prev" title="《活着》——父辈的那些事">
+                《活着》——父辈的那些事 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">watcher</p>
+              <p class="site-description motion-element" itemprop="description">笨狗博客 互联网技术分享博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">watcher</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

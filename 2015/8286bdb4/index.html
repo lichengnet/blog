@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基本布局 FrameLayout    层布局 LinearLayout Horzontal  水平线性布局 LinearLayout Vertical   垂直线性布局 TableLayout   表格布局 TableRow 表格行布局 GridLayout    网格布局 RelativeLayout   相对布局">
+<meta name="keywords" content="android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="android笔记一：布局和基础控件大全（待完善）">
+<meta property="og:url" content="http://yoursite.com/2015/8286bdb4/index.html">
+<meta property="og:site_name" content="bengou&#39;s blog">
+<meta property="og:description" content="基本布局 FrameLayout    层布局 LinearLayout Horzontal  水平线性布局 LinearLayout Vertical   垂直线性布局 TableLayout   表格布局 TableRow 表格行布局 GridLayout    网格布局 RelativeLayout   相对布局  Widgets 部件 Plain TextView     文本块 Larg">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-27T08:01:08.966Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="android笔记一：布局和基础控件大全（待完善）">
+<meta name="twitter:description" content="基本布局 FrameLayout    层布局 LinearLayout Horzontal  水平线性布局 LinearLayout Vertical   垂直线性布局 TableLayout   表格布局 TableRow 表格行布局 GridLayout    网格布局 RelativeLayout   相对布局  Widgets 部件 Plain TextView     文本块 Larg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/8286bdb4/"/>
+
+
+
+
+
+  <title>android笔记一：布局和基础控件大全（待完善） | bengou's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bengou's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">点滴记录，沉思总结，成长分享。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/8286bdb4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="watcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bengou's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">android笔记一：布局和基础控件大全（待完善）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-01-23T15:41:48+08:00">
+                2015-01-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index">
+                    <span itemprop="name">android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="基本布局"><a href="#基本布局" class="headerlink" title="基本布局"></a>基本布局</h4><ul>
+<li><span style="line-height: 14px;">FrameLayout    层布局</span></li>
+<li>LinearLayout Horzontal  水平线性布局</li>
+<li>LinearLayout Vertical   垂直线性布局</li>
+<li>TableLayout   表格布局</li>
+<li>TableRow 表格行布局</li>
+<li>GridLayout    网格布局</li>
+<li>RelativeLayout   相对布局</li>
+</ul>
+<h4 id="Widgets-部件"><a href="#Widgets-部件" class="headerlink" title="Widgets 部件"></a>Widgets 部件</h4><ul>
+<li>Plain TextView     文本块</li>
+<li>Large Text 长文本</li>
+<li>Medium text 中文本</li>
+<li>Small text   短文本</li>
+<li>button   按钮</li>
+<li>small button 小按钮</li>
+<li>radioButton   单选按钮</li>
+<li>CheckBox   复选按钮</li>
+<li>Switch   选择</li>
+<li>ToggleButton   切换按钮</li>
+<li>ImageButton     图形按钮</li>
+<li>ImageView     图像</li>
+<li>ProgressBar Large|Normal|Small|Horizontal 进度条 大的、正常的、小的、水平的</li>
+<li>SeekBar   可定位的进度条</li>
+<li>RatingBar  星型来等级评定条</li>
+<li>Spinner   下拉框</li>
+<li>WebView   web视图</li>
+<li><h4 id="Text-Fields-文本域字段"><a href="#Text-Fields-文本域字段" class="headerlink" title="Text Fields 文本域字段"></a>Text Fields 文本域字段</h4></li>
+<li><p>Plain Text            文本区域编辑框</p>
+</li>
+<li>Person Name      人名类型</li>
+<li>Password            密码类型</li>
+<li>Password Numeric   数字密码类型</li>
+<li>E-mail                 电子邮件类型</li>
+<li>Phone                电话类型</li>
+<li>postal Address       邮寄地址</li>
+<li>Multiline Text          多行文本</li>
+<li>Time            时间类型</li>
+<li>Date           日期类型</li>
+<li>Number          数组类型</li>
+<li>Number Signed      无符号数字类型</li>
+<li>Number Decimal     浮点类型</li>
+<li><h4 id="Containers-容器"><a href="#Containers-容器" class="headerlink" title="Containers 容器"></a>Containers 容器</h4></li>
+<li><p>RadioGroup    单选按钮组</p>
+</li>
+<li>ListView         列表视图容器</li>
+<li>GridView        网格视图容器</li>
+<li>ExpandableListView</li>
+<li>ScrollView       滚动视图容器</li>
+<li>HorizontalScrollView         水平滚动视图容器</li>
+<li>SearchView        搜索视图容器</li>
+<li>TabHost</li>
+<li>SlidingDrawer</li>
+<li>Gallery</li>
+<li>VideoView</li>
+<li>TwoLineListItem</li>
+<li>DialerFilter</li>
+<li><h4 id="Date-amp-Time-日期和时间"><a href="#Date-amp-Time-日期和时间" class="headerlink" title="Date&amp;Time 日期和时间"></a>Date&amp;Time 日期和时间</h4></li>
+<li><p>TextClock    文本时钟</p>
+</li>
+<li>AnalogClock</li>
+<li>DigialClock</li>
+<li>Chronometer</li>
+<li>DtePicker         日期选择器</li>
+<li>TimerPicker     时间选择器</li>
+<li>CalendarView   日历视图</li>
+<li><h4 id="Expert-专业"><a href="#Expert-专业" class="headerlink" title="Expert 专业"></a>Expert 专业</h4></li>
+<li><p>Space 空白</p>
+</li>
+<li>CheckedTextView      带选择的文本</li>
+<li>QuickContactBadge</li>
+<li>ExtractEditText</li>
+<li>AutoCompleteTextView        自动完成文本</li>
+<li>MultiAutoComplete TextView        多个的自动完成文本</li>
+<li>NumberPicker       数字选择器</li>
+<li>ZoomButton          缩放按钮</li>
+<li>ZoomControls          缩放控制</li>
+<li>MediaController        媒体控制</li>
+<li>GestureOverlayView</li>
+<li>SurfaceView</li>
+<li>TextureView</li>
+<li>StackView</li>
+<li>ViewStub</li>
+<li>ViewAnimator</li>
+<li>ViewFlipper</li>
+<li>VIewSwitcher</li>
+<li>ImageSwitcher</li>
+<li>TextSwicher</li>
+<li>AdapterViewFlipper</li>
+<li><h4 id="Custom-自定义"><a href="#Custom-自定义" class="headerlink" title="Custom 自定义"></a>Custom 自定义</h4></li>
+<li><p>&lt;include&gt;</p>
+</li>
+<li>&lt;fragment&gt;</li>
+<li>requestFocus 请求焦点</li>
+<li>CustomView 自定义视图</li>
+</ul>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag"># android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/aef3852d/" rel="next" title="HTML5学习一：元素和标签结构">
+                <i class="fa fa-chevron-left"></i> HTML5学习一：元素和标签结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/425e79c1/" rel="prev" title="《人月神话》——读书笔记">
+                《人月神话》——读书笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">watcher</p>
+              <p class="site-description motion-element" itemprop="description">笨狗博客 互联网技术分享博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#基本布局"><span class="nav-number">1.</span> <span class="nav-text">基本布局</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Widgets-部件"><span class="nav-number">2.</span> <span class="nav-text">Widgets 部件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Text-Fields-文本域字段"><span class="nav-number">3.</span> <span class="nav-text">Text Fields 文本域字段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Containers-容器"><span class="nav-number">4.</span> <span class="nav-text">Containers 容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Date-amp-Time-日期和时间"><span class="nav-number">5.</span> <span class="nav-text">Date&Time 日期和时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Expert-专业"><span class="nav-number">6.</span> <span class="nav-text">Expert 专业</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Custom-自定义"><span class="nav-number">7.</span> <span class="nav-text">Custom 自定义</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">watcher</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

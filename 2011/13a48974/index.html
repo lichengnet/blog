@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="类如 有一个 帖子的回复表，posts（ id , tid , subject , message ,  dateline ） , id为 自动增长字段， tid为该回复的主题帖子的id（外键关联）,  subject 为回复标题， message 为回复内容， dateline 为回复时间，用UNIX 时间戳表示， ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(转)mysql group by排序问题">
+<meta property="og:url" content="http://yoursite.com/2011/13a48974/index.html">
+<meta property="og:site_name" content="bengou&#39;s blog">
+<meta property="og:description" content="类如 有一个 帖子的回复表，posts（ id , tid , subject , message ,  dateline ） , id为 自动增长字段， tid为该回复的主题帖子的id（外键关联）,  subject 为回复标题， message 为回复内容， dateline 为回复时间，用UNIX 时间戳表示， 现在要求 选出 前十个来自不同主题的最新回复 SELECT * FROM pos">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-27T10:15:28.695Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(转)mysql group by排序问题">
+<meta name="twitter:description" content="类如 有一个 帖子的回复表，posts（ id , tid , subject , message ,  dateline ） , id为 自动增长字段， tid为该回复的主题帖子的id（外键关联）,  subject 为回复标题， message 为回复内容， dateline 为回复时间，用UNIX 时间戳表示， 现在要求 选出 前十个来自不同主题的最新回复 SELECT * FROM pos">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2011/13a48974/"/>
+
+
+
+
+
+  <title>(转)mysql group by排序问题 | bengou's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bengou's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">点滴记录，沉思总结，成长分享。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2011/13a48974/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="watcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bengou's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">(转)mysql group by排序问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2011-04-07T13:56:16+08:00">
+                2011-04-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>类如 有一个 帖子的回复表，posts（ id , tid , subject , message ,  dateline ） ,</p>
+<p>id为 自动增长字段， tid为该回复的主题帖子的id（外键关联）,  subject 为回复标题， message 为回复内容， dateline 为回复时间，用UNIX 时间戳表示，</p>
+<p>现在要求 选出 前十个来自不同主题的最新回复</p>
+<p><span><br>SELECT * FROM posts GROUP BY  tid  LIMIT 10</span></p>
+<p>这样一个sql语句选出来的并非你想要的 最新的回复，而是最早的回复，实际上是某篇主题的第一条回复记录！</p>
+<p>也就是说 GROUP BY 语句没有排序，那么怎么才能让 GROUP 按照 dateline 倒序排列呢？加上 order by 子句？</p>
+<p>看下面：</p>
+<p><span>SELECT * FROM posts GROUP BY  tid  ORDER BY dateline DESC LIMIT 10</span></p>
+<p>这条语句选出来的结果和上面的完全一样，不过把结果倒序排列了，而选择出来的每一条记录仍然是上面的记录，原因是 group by 会比 order by 先执行，这样也就没有办法将 group by 之前，也就是在分组之前进行排序了， 有网友会写出下面的sql 语句：</p>
+<p><span><br>SELECT * FROM posts GROUP BY  tid DESC ORDER BY dateline DESC LIMIT 10</span></p>
+<p>也就是说 在 GROUP BY 的字段 tid 后面加上递减顺序，这样不就可以取得分组时的最后回复了吗？这个语句执行结果会和上面的一模一样，这里加上 DESC 和ASC对执行结果没有任何影响！其实这是一个错误的语句，原因是GROUP BY 之前并没有排序功能，mysql 手册上面说，GROUP BY 时是按照某种顺序排序的，某种顺序到底是什么顺序？其实根本没有顺序，因为按照tid分组，其实也就是说，把tid相等的归纳到一个组，这样想的话，GROUP BY tid DESC 可以认为是在按照 tid 分组的时候，按照tid进行倒序排列，这不扯吗，既然是按照tid分组，当然是tid相等的归到一组，而这时候按照tid倒叙还是升序有个P用！</p>
+<p>于是有网友发明下面的语句：</p>
+<p><span><br>SELECT * FROM posts GROUP BY  tid , dateline DESC ORDER BY dateline DESC LIMIT 10</span></p>
+<p>心想这样我就可以在分组前按照  dateline 倒序排列了，其实这个语句并没有起到按照tid分组的作用，原因还是上面的，在group by 字段后加 desc 还是 asc 是错误的写法，而这种写法 网友本意是想 按照 tid 分组，并且在分组的时候按照 dateline排倒序！而实际这句相当于下面的写法：（去掉 GROUP BY 字段后面的 DESC）</p>
+<p><span>SELECT * FROM posts GROUP BY  tid , dateline ORDER BY dateline DESC LIMIT 10</span></p>
+<p>也就是说，按照 tid 和 dateline 联合分组，只有在记录tid和dateline 同时相等的时候才归纳到一组，这显然不可能， 因为 dateline 时间线基本上是唯一的！</p>
+<p>有人写出下面的语句：</p>
+<p><span>SELECT *,max(dateline) as max_line FROM posts GROUP BY  tid ORDER BY dateline DESC LIMIT 10</span></p>
+<p>这条语句的没错是选出了最大发布时间，但是你可以对比一下 dateline 和 max_dateline 并不相等！(可能有相当的情况，就是分组的目标记录只有一条的时候！)</p>
+<p>为什么呢？原因很简单，这条语句相当于是 在group by 以后选出 本组的最大的 发布时间！对分组没有起到任何影响！因为SELECT子句是最后执行的！</p>
+<p>后来更有网友发明了下面的写法！</p>
+<p><span>SELECT *,max(dateline) as max_line FROM posts GROUP BY  tid HAVING dateline=max(dateline)</span></p>
+<p>ORDER BY dateline DESC LIMIT 10</p>
+<p>这条语句的预期结果和想象中的并不相同！因为你会发现，分组的结果中大量的记录没有了！为什么？因为 HAVING 是在分组的时候执行的，也就说：在分组的时候加上一个这样的条件：选择出来的 dateline 要和 本组最大的dateline 相等，执行的结果和下面的语句相同：</p>
+<p><span>SELECT <em>,max(dateline) as max_line FROM posts GROUP BY  tid HAVING count(</em>)=1</span></p>
+<p>ORDER BY dateline DESC LIMIT 10<br></p>
+<p>看了这条sql语句是不是明白了呢？</p>
+<p>dateline=max(dateline) 只有在分组中的记录只有一条的时候才成立，原因很明白吧！只有一条他才会和本组的最大发布时间相等阿，（默认dateline为不重复的值）</p>
+<p>原因还是因为 group by 并没有排序功能，所有的这些排序功能只是错觉，所以你最终选出的 dateline 和max(dateline) 永远不可能相等，除非本组的记录只有一条！GROUP BY 在分组的时候，可能是一个一个来找的，发现有相等的tid，去掉，保留第一个发现的那一条记录，所以找出来的 记录永远只是按照默认索引顺序排列的！</p>
+<p>那么说了这么多，到底有没有办法让 group by 执行前分组阿？有的 ，子查询阿！</p>
+<p>最简单的 ：</p>
+<p><span><br>SELECT <em> FROM (SELECT </em> FROM posts ORDER BY dateline DESC) GROUP BY  tid ORDER BY dateline DESC LIMIT 10</span></p>
+<p>也有网友利用自连接实现的 ，这样的效率应该比上面的子查询效率高，不过，为了简单明了，就只用这样一种了，GROUP BY没有排序功能，可能是mysql弱智的地方，也许是我还没有发现</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2010/bcfecac6/" rel="next" title="叹为观止的地下产业">
+                <i class="fa fa-chevron-left"></i> 叹为观止的地下产业
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/1877c891/" rel="prev" title="《高性能MySQL》——架构综述">
+                《高性能MySQL》——架构综述 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">watcher</p>
+              <p class="site-description motion-element" itemprop="description">笨狗博客 互联网技术分享博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">watcher</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

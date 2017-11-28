@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="网站的可扩展性架构：&amp;nbsp; 扩展性：指对现有系统影响最小的情况下，系统功能可持续扩展或提升的能力。表现在系统基础设施稳定不需要经常变更，应用之间较少依赖和耦合，对需求变更可以敏捷相应。它是系统架构设计层面的开闭原则（对扩展开放，对修改关闭），架构设计考虑未来功能扩展，当系统增加新功能时忙不需要对现有系统的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大型网站技术架构_核心原理与案例分析笔记（三）">
+<meta property="og:url" content="http://yoursite.com/2015/d03b979f/index.html">
+<meta property="og:site_name" content="bengou&#39;s blog">
+<meta property="og:description" content="网站的可扩展性架构：&amp;nbsp; 扩展性：指对现有系统影响最小的情况下，系统功能可持续扩展或提升的能力。表现在系统基础设施稳定不需要经常变更，应用之间较少依赖和耦合，对需求变更可以敏捷相应。它是系统架构设计层面的开闭原则（对扩展开放，对修改关闭），架构设计考虑未来功能扩展，当系统增加新功能时忙不需要对现有系统的结构和代码进行修改。 伸缩性：指系统能够通过增加（减少）自身资源规模的方式增强（减少）自">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-27T10:47:27.310Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="大型网站技术架构_核心原理与案例分析笔记（三）">
+<meta name="twitter:description" content="网站的可扩展性架构：&amp;nbsp; 扩展性：指对现有系统影响最小的情况下，系统功能可持续扩展或提升的能力。表现在系统基础设施稳定不需要经常变更，应用之间较少依赖和耦合，对需求变更可以敏捷相应。它是系统架构设计层面的开闭原则（对扩展开放，对修改关闭），架构设计考虑未来功能扩展，当系统增加新功能时忙不需要对现有系统的结构和代码进行修改。 伸缩性：指系统能够通过增加（减少）自身资源规模的方式增强（减少）自">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/d03b979f/"/>
+
+
+
+
+
+  <title>大型网站技术架构_核心原理与案例分析笔记（三） | bengou's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bengou's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">点滴记录，沉思总结，成长分享。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/d03b979f/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="watcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bengou's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">大型网站技术架构_核心原理与案例分析笔记（三）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-08-12T10:41:19+08:00">
+                2015-08-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/架构设计/" itemprop="url" rel="index">
+                    <span itemprop="name">架构设计</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="网站的可扩展性架构："><a href="#网站的可扩展性架构：" class="headerlink" title="网站的可扩展性架构："></a>网站的可扩展性架构：</h3><p>&nbsp;</p>
+<h4 id="扩展性："><a href="#扩展性：" class="headerlink" title="扩展性："></a>扩展性：</h4><p>指对现有系统影响最小的情况下，系统功能可持续扩展或提升的能力。表现在系统基础设施稳定不需要经常变更，应用之间较少依赖和耦合，对需求变更可以敏捷相应。它是系统架构设计层面的开闭原则（对扩展开放，对修改关闭），架构设计考虑未来功能扩展，当系统增加新功能时忙不需要对现有系统的结构和代码进行修改。</p>
+<h4 id="伸缩性："><a href="#伸缩性：" class="headerlink" title="伸缩性："></a>伸缩性：</h4><p>指系统能够通过增加（减少）自身资源规模的方式增强（减少）自己计算处理事务的能力。如果这种增减是成比例的，就被称作线性伸缩性。在网站架构中，通过指利用集群的方式增加服务器数量、提高系统的整体事务吞吐能力。</p>
+<h4 id="利用分布式消息队列降低系统耦合性："><a href="#利用分布式消息队列降低系统耦合性：" class="headerlink" title="利用分布式消息队列降低系统耦合性："></a>利用分布式消息队列降低系统耦合性：</h4><p>1. 事件驱动架构；<br>2. 分布式消息队列。</p>
+<h4 id="利用分布式服务打造可复用的业务平台"><a href="#利用分布式服务打造可复用的业务平台" class="headerlink" title="利用分布式服务打造可复用的业务平台"></a>利用分布式服务打造可复用的业务平台</h4><p>1. web service与企业级分布式服务；<br>2. 大型网站分布式服务需求和特点（负载均衡、失效转移、高效的远程通信、整合异构系统、对应用最少侵入、版本管理、实时监控）</p>
+<h4 id="可扩展的数据接口（NOSQL）"><a href="#可扩展的数据接口（NOSQL）" class="headerlink" title="可扩展的数据接口（NOSQL）"></a>可扩展的数据接口（NOSQL）</h4><p>&nbsp;</p>
+<h4 id="利用开放平台构建生态圈"><a href="#利用开放平台构建生态圈" class="headerlink" title="利用开放平台构建生态圈"></a>利用开放平台构建生态圈</h4><p>&nbsp;</p>
+<h3 id="网站的安全架构："><a href="#网站的安全架构：" class="headerlink" title="网站的安全架构："></a>网站的安全架构：</h3><p>&nbsp;</p>
+<h4 id="1-XSS（CROSS-SITE-SCRIPT）"><a href="#1-XSS（CROSS-SITE-SCRIPT）" class="headerlink" title="1. XSS（CROSS SITE SCRIPT）"></a>1. XSS（CROSS SITE SCRIPT）</h4><p>1. 消毒（转义&lt;、&gt;、标签）<br>2. httponly（放置JS窃取cookie）</p>
+<h4 id="2-注入"><a href="#2-注入" class="headerlink" title="2. 注入"></a>2. 注入</h4><p>利用方式：开源代码、错误回显、盲注<br>防御方式：消毒（过滤特殊关键字）、参数绑定</p>
+<h4 id="3-CSRF攻击（Cross-site-request-forgery）"><a href="#3-CSRF攻击（Cross-site-request-forgery）" class="headerlink" title="3. CSRF攻击（Cross site request forgery）"></a>3. CSRF攻击（Cross site request forgery）</h4><p>防范方法：表单Token、验证码、referer check</p>
+<h4 id="4-other"><a href="#4-other" class="headerlink" title="4. other"></a>4. other</h4><p>error code、html注释、文件上传、路径遍历。</p>
+<h4 id="WEB应用防火墙（mode-Security）-独立的规则过滤模块"><a href="#WEB应用防火墙（mode-Security）-独立的规则过滤模块" class="headerlink" title="WEB应用防火墙（mode Security） 独立的规则过滤模块"></a>WEB应用防火墙（mode Security） 独立的规则过滤模块</h4><p>&nbsp;</p>
+<h4 id="信息加密技术及密钥安全管理"><a href="#信息加密技术及密钥安全管理" class="headerlink" title="信息加密技术及密钥安全管理"></a>信息加密技术及密钥安全管理</h4><p>常用加密技术分类：单项散列加密（md5,sha）、对称加密（DES、RC）、非对称加密（RSA算法、HTTPS即是）。<br>信息过滤与反垃圾：文本匹配（trie算法）、分类算法（贝叶斯算法）、黑名单。<br>电子商务风险控制：风险，风控：规则引擎、统计模型。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/9d2534cd/" rel="next" title="大型网站技术架构_核心原理与案例分析笔记（二）">
+                <i class="fa fa-chevron-left"></i> 大型网站技术架构_核心原理与案例分析笔记（二）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/85a10a9b/" rel="prev" title="大型网站技术架构_核心原理与案例分析笔记（四——案例）">
+                大型网站技术架构_核心原理与案例分析笔记（四——案例） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">watcher</p>
+              <p class="site-description motion-element" itemprop="description">笨狗博客 互联网技术分享博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#网站的可扩展性架构："><span class="nav-number">1.</span> <span class="nav-text">网站的可扩展性架构：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#扩展性："><span class="nav-number">1.1.</span> <span class="nav-text">扩展性：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#伸缩性："><span class="nav-number">1.2.</span> <span class="nav-text">伸缩性：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#利用分布式消息队列降低系统耦合性："><span class="nav-number">1.3.</span> <span class="nav-text">利用分布式消息队列降低系统耦合性：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#利用分布式服务打造可复用的业务平台"><span class="nav-number">1.4.</span> <span class="nav-text">利用分布式服务打造可复用的业务平台</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可扩展的数据接口（NOSQL）"><span class="nav-number">1.5.</span> <span class="nav-text">可扩展的数据接口（NOSQL）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#利用开放平台构建生态圈"><span class="nav-number">1.6.</span> <span class="nav-text">利用开放平台构建生态圈</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网站的安全架构："><span class="nav-number">2.</span> <span class="nav-text">网站的安全架构：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-XSS（CROSS-SITE-SCRIPT）"><span class="nav-number">2.1.</span> <span class="nav-text">1. XSS（CROSS SITE SCRIPT）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-注入"><span class="nav-number">2.2.</span> <span class="nav-text">2. 注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-CSRF攻击（Cross-site-request-forgery）"><span class="nav-number">2.3.</span> <span class="nav-text">3. CSRF攻击（Cross site request forgery）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-other"><span class="nav-number">2.4.</span> <span class="nav-text">4. other</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WEB应用防火墙（mode-Security）-独立的规则过滤模块"><span class="nav-number">2.5.</span> <span class="nav-text">WEB应用防火墙（mode Security） 独立的规则过滤模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#信息加密技术及密钥安全管理"><span class="nav-number">2.6.</span> <span class="nav-text">信息加密技术及密钥安全管理</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">watcher</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

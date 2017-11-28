@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="新增的结构标签  section元素表示页面中的一个内容区块,比如章节、页眉、页脚或页面的其他部分。可以和h1、 h2……等元素结合起来使用，表示文档结构。例：HTML5中&amp;lt;section&amp;gt;……&amp;lt;/section&amp;gt;;HTML4中&amp;lt;div&amp;gt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTML5学习一：元素和标签结构">
+<meta property="og:url" content="http://yoursite.com/2015/aef3852d/index.html">
+<meta property="og:site_name" content="bengou&#39;s blog">
+<meta property="og:description" content="新增的结构标签  section元素表示页面中的一个内容区块,比如章节、页眉、页脚或页面的其他部分。可以和h1、 h2……等元素结合起来使用，表示文档结构。例：HTML5中&amp;lt;section&amp;gt;……&amp;lt;/section&amp;gt;;HTML4中&amp;lt;div&amp;gt; ……&amp;lt;/div&amp;gt;。 article元素表示页面中一块与上下文不相关的独立内容。比如一篇文章。 aside元素表示">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-27T07:05:20.486Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HTML5学习一：元素和标签结构">
+<meta name="twitter:description" content="新增的结构标签  section元素表示页面中的一个内容区块,比如章节、页眉、页脚或页面的其他部分。可以和h1、 h2……等元素结合起来使用，表示文档结构。例：HTML5中&amp;lt;section&amp;gt;……&amp;lt;/section&amp;gt;;HTML4中&amp;lt;div&amp;gt; ……&amp;lt;/div&amp;gt;。 article元素表示页面中一块与上下文不相关的独立内容。比如一篇文章。 aside元素表示">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/aef3852d/"/>
+
+
+
+
+
+  <title>HTML5学习一：元素和标签结构 | bengou's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bengou's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">点滴记录，沉思总结，成长分享。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/aef3852d/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="watcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bengou's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">HTML5学习一：元素和标签结构</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-01-19T20:09:23+08:00">
+                2015-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web前端/" itemprop="url" rel="index">
+                    <span itemprop="name">Web前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>新增的结构标签</strong></p>
+<ul>
+<li><strong>section元素</strong><br>表示页面中的一个内容区块,比如章节、页眉、页脚或页面的其他部分。可以和h1、 h2……等元素结合起来使用，表示文档结构。例：HTML5中&lt;section&gt;……&lt;/section&gt;;HTML4中&lt;div&gt; ……&lt;/div&gt;。</li>
+<li><strong>article元素</strong><br>表示页面中一块与上下文不相关的独立内容。比如一篇文章。</li>
+<li><strong>aside元素</strong><br>表示article元素内容之外的、与article元素内容相关的辅助信息。</li>
+<li><strong>header元素</strong><br>表示页面中一个内容区块或真个页面的标题。</li>
+<li><strong>hgroup元素</strong><br>表示对真个页面或页面中的一个内容区块的<strong>标题</strong>进行组合。</li>
+<li><strong>footer元素</strong><br>表示整个页面或页面中一个内容区块的脚注。一般来说，他会包含创作者的姓名、创作日期以及创作者的联系信息。</li>
+<li><strong>nav元素</strong><br>表示页面中导航链接的部分。</li>
+<li>figure元素 <strong>
+</strong>表示一段独立的流内容，一般表示文档主体流内容中的一个独立单元。使用figcaption元素为figure元素组添加标题。例如：<br>&lt;figure&gt;<br>&lt;figcaption&gt;PRC&lt;/figcaption&gt;<br>&lt;p&gt;The People’s Republic of China was born in 1949&lt;/p&gt;<br>&lt;/figure&gt;<br>HTML4中常写作<br>&lt;dl&gt;<br>&lt;h1&gt;prc&lt;/h1&gt;<br>&lt;p&gt;The People’s Republic of China was born in 1949&lt;/p&gt;<br>&lt;/dl&gt;<br>&nbsp;</li>
+</ul>
+<p><strong>新增的其他元素</strong></p>
+<ul>
+<li><strong>video元素</strong><br>定义视频。像电影片段或其他视频流。例：&lt;video src=”movie.ogg” controls=”controls”&gt;video元素&lt;/video&gt;<br>HTML4中写法：<br>&lt;object type=”video/ogg” data=”move.ogv”&gt;<br>&lt;param name =”src” value=”movie.ogv”&gt;<br>&lt;/object&gt;</li>
+<li><strong>audio元素</strong><br>定义音频。如音乐或其他音频流。例：&lt;audio src =”someaudio.wav”&gt;audio元素&lt;/audio&gt;<br>html4中写法：<br>&lt;object tyle=”application/ogg” data=”someaudio.wav”&gt;<br>&lt;param name =”src” value= “someaudio.wav”&gt;<br>&lt;/object&gt;</li>
+<li><strong>embed元素</strong><br>用来嵌入内容(包括各种媒体)。格式可以是Midi、Wav、AIFF、AU、MP3,flash等。例：&lt;embed src=”flash.swf” /&gt;<br>HTML4中代码示例&lt;object data=”flash.swf” type=”application/x-shockwave-flash”&gt;&lt;object&gt;</li>
+<li><strong>mark元素</strong><br>主要用来在视觉上向用户呈现哪些需要突出显示或高亮显示的文字。典型应用搜索结果中高亮显示搜素关键字。<br>HTML5&lt;mark&gt;&lt;/mark&gt;;HTML4 &lt;span&gt;&lt;/span&gt;。</li>
+<li><strong>progress元素</strong><br>表示运行中的进程，可以使用progress元素显示JavaScript中耗时时间函数的进程。等待中……、请稍后等。&lt;progress&gt;&lt;/progress&gt;。</li>
+<li><strong>time元素</strong><br>表示日期或时间，也可以两者同时。</li>
+<li><strong>ruby元素</strong><br>定义 ruby 注释（中文注音或字符）。<br>与 &lt;ruby&gt; 以及 &lt;rt&gt; 标签一同使用。ruby 元素由一个或多个字符（需要一个解释/发音）和一个提供该信息的 rt 元素组成，还包括可选的 rp 元素，定义当浏览器不支持 “ruby” 元素时显示的内容。<br>&lt;ruby&gt;<br>漢 &lt;rt&gt;&lt;rp&gt;(&lt;/rp&gt;ㄏㄢˋ&lt;rp&gt;)&lt;/rp&gt;&lt;/rt&gt;<br>&lt;/ruby&gt;</li>
+<li><strong>rt元素</strong><br>定义字符（中文注音或字符）的解释或发音。</li>
+<li><strong>rp元素</strong><br>在 ruby 注释中使用，以定义不支持 ruby 元素的浏览器所显示的内容。</li>
+<li><strong>wbr元素</strong><br>表示软换行。与br元素的区别：br元素表示此处必须换行；wbr表示浏览器窗口或父级元素足弓宽时（没必要换行时），不换行，而宽度不够时主动在此处换行。</li>
+<li><strong>canvas元素</strong><br>定义图形，比如图表和其他图像。&lt;canvas&gt; 元素只是图形容器（画布），必须使用脚本来绘制图形。<br><code>&amp;lt;canvas id=&quot;myCanvas&quot;&amp;gt;&amp;lt;/canvas&amp;gt;</code>&lt;script type=”text/javascript”&gt;<br>var canvas=document.getElementById(‘myCanvas’);<br>var ctx=canvas.getContext(‘2d’);<br>ctx.fillStyle=’#FF0000’;<br>ctx.fillRect(0,0,80,100);<br>&lt;/script&gt;</li>
+<li><strong>command元素</strong>——貌似没什么效果。是不是支持有问题<br>表示命令按钮，比如单选按钮、复选框或按钮。只有当 command 元素位于 menu 元素内时，该元素才是可见的。否则不会显示这个元素，但是可以用它规定键盘快捷键。。<br>&lt;menu&gt;<br>&lt;command onclick=”alert(‘Hello World’)”&gt;<br>Click Me!&lt;/command&gt;<br>&lt;/menu&gt;</li>
+<li><strong>details标签</strong> 目前只有 Chrome 支持 details 标签<br>用于描述文档或文档某个部分的细节 。<br>可与 summary 标签配合使用，summary可以为 details 定义标题。标题是可见的，用户点击标题时，会显示出 details。summary应该是details的第一个子元素。</li>
+<li><strong>datalist**</strong>标签**<br>定义选项列表。请与 input 元素配合使用该元素，来定义 input 可能的值。datalist 及其选项不会被显示出来，它仅仅是合法的输入值列表。使用 input 元素的 list 属性来绑定 datalist。<br>&lt;input id=”myCar” list=”cars” /&gt;<br><code>&amp;lt;datalist id=&quot;cars&quot;&amp;gt;</code><br>&lt;option value=”BMW”&gt;<br>&lt;option value=”Ford”&gt;<br>&lt;option value=”Volvo”&gt;<br><code>&amp;lt;/datalist&amp;gt;</code></li>
+<li><strong>datagrid标签</strong> 如何用？<br>定义可选数据的列表。datagrid 作为树列表来显示。<br>如果把 multiple 属性设置为 true，则可以在列表中选取一个以上的项目。</li>
+<li><strong>keygen标签</strong> 如何用?<br>标签规定用于表单的密钥对生成器字段。</li>
+</ul>
+<p>当提交表单时，私钥存储在本地，公钥发送到服务器。</p>
+<p>&lt;form action=”demo_keygen.asp” method=”get”&gt;<br>Username: &lt;input type=”text” name=”usr_name” /&gt;<br>Encryption: <code>&amp;lt;keygen name=&quot;security&quot; /&amp;gt;</code><br>&lt;input type=”submit” /&gt;<br>&lt;/form&gt;</p>
+<ul>
+<li><strong>output标签
+</strong>定义不同类型的输出，比如脚本的输出。<br>&lt;form action=”form_action.asp” method=”get” name=”sumform”&gt;<br>&lt;output name=”sum”&gt;&lt;/output&gt;<br>&lt;/form&gt;</li>
+<li><strong>source标签</strong><br>标签为媒介元素（比如 &lt;video&gt; 和 &lt;audio&gt;）定义媒介资源。</li>
+<li><strong>menu标签</strong><br>定义菜单列表。当希望列出表单控件时使用该标签。注意与nav的区别，menu专门用于表单控件。<br>&lt;menu&gt;<br>&lt;li&gt;&lt;input type=”checkbox” /&gt;Red&lt;/li&gt;<br>&lt;li&gt;&lt;input type=”checkbox” /&gt;blue&lt;/li&gt;<br>&lt;/menu&gt;<br>&nbsp;</li>
+</ul>
+<p><strong>新增input标签</strong></p>
+<ul>
+<li>email<br>必须输入email</li>
+<li>url<br>必须输入url地址</li>
+<li>number<br>必须输入数值</li>
+<li>range<br>必须输入一定范围内数值</li>
+<li>Date Pickers（日期选择器）<br>拥有多个可供选取日期和时间的新输入类型：<br>date - 选取日、月、年<br>month - 选取月、年<br>week - 选取周和年<br>time - 选取时间（小时和分钟）<br>datetime - 选取时间、日、月、年（UTC 时间）<br>datetime-local - 选取时间、日、月、年（本地时间）</li>
+<li>search<br>用于搜索域，域显示为常规的文本域。</li>
+<li>color<br>&nbsp;</li>
+</ul>
+<p><strong>废除的元素</strong></p>
+<p>1、能用css代替的元素<br>basefont、big、center、font、s、strike、tt、u。这些元素纯粹是为画面展示服务的，HTML5中提倡把画面展示性功能放在css中统一编辑。</p>
+<p>2、不再使用frame框架。</p>
+<p>frameset、frame、noframes。HTML5中不支持frame框架，只支持iframe框架，或者用服务器方创建的由多个页面组成的符合页面的形式，删除以上这三个标签。</p>
+<p>3、只有部分浏览器支持的元素</p>
+<p>applet、bgsound、blink、marquee等标签。</p>
+<p>4、其他被废除的元素</p>
+<p>废除rb，树勇ruby替代。</p>
+<p>废除acronym使用abbr替代。</p>
+<p>废除dir使用ul替代。</p>
+<p>废除isindex使用form与input相结合的方式替代</p>
+<p>废除listing使用pre替代</p>
+<p>废除xmp使用code替代</p>
+<p>废除nextid使用guids</p>
+<p>废除plaintex使用“text/plian”（无格式正文）MIME类型替代。</p>
+<div id="cnblogs_post_body"><br><br>HTML5中，在新增加和废除很多元素的同时，也增加和废除了很多属性。<br><br><strong>新增的属性</strong><br><br><strong>1、表单相关的属性</strong><br><br><em>   对input（type=text）、select、textarea与button指定autofocus属性。它以指定属性的方式让元素在画面打开时自动获得焦点。
+</em>   对input（type=text）、textarea指定placeholder属性，它会对用户的输入进行提示，提示用户可以输入的内容。<br><em>   对input、output、select、textarea、button与fieldset指定form属性。它声明属于哪个表单，然后将其放置在页面的任何位置，而不失表单之内。
+</em>   对input（type=text）、textarea指定required属性。该属性表示用户提交时进行检查，检查该元素内必定要有输入内容。<br><em>   为input标签增加几个新的属性：autocomplete、min、max、multiple、pattern与step。还有list属性与datalist元素配合使用；datalist元素与autocomplete属性配合使用。multiple属性允许上传时一次上传多个文件； pattern属性用于验证输入字段的模式，其实就是正则表达式。step 属性规定输入字段的合法数字间隔（假如 step=”3”，则合法数字应该是 -3、0、3、6，以此类推），step 属性可以与 max 以及 min 属性配合使用，以创建合法值的范围。
+</em>   为input、button元素增加formaction、formenctype、formmethod、formnovalidate与formtarget属性。用户重载form元素的action、enctype、method、novalidate与target属性。为fieldset元素增加disabled属性，可以把它的子元素设为disabled状态。<br><em>   为input、button、form增加novalidate属性，可以取消提交时进行的有关检查，表单可以被无条件地提交。<br><strong>2、链接相关属性</strong>
+
+</em>   为a、area增加media属性。规定目标 URL 是为什么类型的媒介/设备进行优化的。该属性用于规定目标 URL 是为特殊设备（比如 iPhone）、语音或打印媒介设计的。该属性可接受多个值。只能在 href 属性存在时使用。<br><em>   为area增加herflang和rel属性。<strong>hreflang</strong> 属性规定在被链接文档中的文本的语言。只有当设置了 href 属性时，才能使用该属性。注释：该属性是纯咨询性的。<strong>rel </strong>属性规定当前文档与被链接文档/资源之间的关系。只有当使用 href 属性时，才能使用 rel 属性。
+</em>   为link增加size属性。sizes 属性规定被链接资源的尺寸。只有当被链接资源是图标时 (rel=”icon”)，才能使用该属性。该属性可接受多个值。值由空格分隔。<br><em>   为base元素增加target属性，主要是保持与a元素的一致性。<br>3、其他属性
+
+</em>   为ol增加reversed属性，它指定列表倒序显示。<br><em>   为meta增加charset属性
+</em>   为menu增加type和label属性。label为菜单定义一个课件的标注，type属性让才当可以以上下文菜单、工具条与列表cande但三种形式出现。<br><em>   为style增加scoped属性。它允许我们为文档的指定部分定义样式，而不是整个文档。如果使用 “scoped” 属性，那么所规定的样式只能应用到 style 元素的父元素及其子元素。
+</em>   为script增减属性，它定义脚本是否异步执行。async 属性仅适用于外部脚本（只有在使用 src 属性时）有多种执行外部脚本的方法：<br><br>    <em>   如果 async=”async”：脚本相对于页面的其余部分异步地执行（当页面继续进行解析时，脚本将被执行）
+    </em>   如果不使用 async 且 defer=”defer”：脚本将在页面完成解析时执行<br>    <em>   如果既不使用 async 也不使用 defer：在浏览器继续解析页面之前，立即读取并执行脚本
+
+</em>   为html元素增加manifest，开发离线web应用程序时他与API结合使用，定义一个URL，在这个URL上描述文档的缓存信息。<br><em>   为iframe增加撒个属性，sandbox、seamless、srcdoc。用来提高页面安全性，防止不信任的web页面执行某些操作。<br><strong>废除的属性</strong><br><br>HTML4中一些属性在HTML5中不再被使用，而是采用其他属性或其他方式进行替代。<br><table border="0" cellspacing="0" cellpadding="0"><br><tbody><br><tr><br><td valign="top" width="187"><strong>在HTML 4中使用的属性</strong></td><br><td valign="top" width="142"><strong>使用该属性的元素</strong></td><br><td valign="top" width="285"><strong>在HTML 5中的替代方案</strong></td><br></tr><br><tr><br><td valign="top" width="187"><strong>rev</strong></td><br><td valign="top" width="142">link、a</td><br><td valign="top" width="285">rel</td><br></tr><br><tr><br><td valign="top" width="187"><strong>charset</strong></td><br><td valign="top" width="142">link、a</td><br><td valign="top" width="285">在被链接的资源的中使用HTTP Content-type头元素</td><br></tr><br><tr><br><td valign="top" width="187"><strong>shape**</strong>、coords<strong></strong></td><br><td valign="top" width="142">a</td><br><td valign="top" width="285">使用area元素代替a元素</td><br></tr><br><tr><br><td valign="top" width="187">longdesc<strong></strong></td><br><td valign="top" width="142">img、iframe</td><br><td valign="top" width="285">使用a元素链接到校长描述</td><br></tr><br><tr><br><td valign="top" width="187">target<strong></strong></td><br><td valign="top" width="142">link</td><br><td valign="top" width="285">多余属性，被省略</td><br></tr><br><tr><br><td valign="top">nohref<strong></strong></td><br><td valign="top">area</td><br><td valign="top">多余属性，被省略</td><br></tr><br><tr><br><td valign="top">profile<strong></strong></td><br><td valign="top">head</td><br><td valign="top">多余属性，被省略</td><br></tr><br><tr><br><td valign="top">version<strong></strong></td><br><td valign="top">html</td><br><td valign="top">多余属性，被省略</td><br></tr><br><tr><br><td valign="top">name<strong></strong></td><br><td valign="top">img</td><br><td valign="top">id</td><br></tr><br><tr><br><td valign="top">scheme<strong></strong></td><br><td valign="top">meta</td><br><td valign="top">只为某个表单域使用scheme</td><br></tr><br><tr><br><td valign="top">archive<strong>**、chlassid、codebose、codetype、declare、standby</strong></td><br><td valign="top">object</td><br><td valign="top">使用data与typc属性类调用插件。需要使用这些属性来设置参数时，使用param属性</td><br></tr><br><tr><br><td valign="top"><strong>valuetype**</strong>、type<strong></strong></td><br><td valign="top">param</td><br><td valign="top">使用name与value属性，不声明之的MIME类型</td><br></tr><br><tr><br><td valign="top">axis<strong>**、abbr</strong></td><br><td valign="top">td、th</td><br><td valign="top">使用以明确简洁的文字开头、后跟详述文字的形式。可以对更详细内容使用title属性，来使单元格的内容变得简短</td><br></tr><br><tr><br><td valign="top"><strong>scope</strong></td><br><td valign="top">td</td><br><td valign="top">在被链接的资源的中使用HTTP Content-type头元素</td><br></tr><br><tr><br><td valign="top"><strong>align</strong></td><br><td valign="top">caption、input、legend、div、h1、h2、h3、h4、h5、h6、p</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>alink**</strong>、link、text、vlink、background、bgcolor<strong></strong></td><br><td valign="top">body</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top">align<strong>**、bgcolor、border、cellpadding、cellspacing、frame、rules、width</strong></td><br><td valign="top">table</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>align**</strong>、char、charoff、height、nowrap、valign<strong></strong></td><br><td valign="top">tbody、thead、tfoot</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top">align<strong>**、bgcolor、char、charoff、height、nowrap、valign、width</strong></td><br><td valign="top">td、th</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>align**</strong>、bgcolor、char、charoff、valign<strong></strong></td><br><td valign="top">tr</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top">align<strong>**、char、charoff、valign、width</strong></td><br><td valign="top">col、colgroup</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>align**</strong>、border、hspace、vspace<strong></strong></td><br><td valign="top">object</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top">clear<strong></strong></td><br><td valign="top">br</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top">compace<strong>**、type</strong></td><br><td valign="top">ol、ul、li</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>compace</strong></td><br><td valign="top">dl</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>compace</strong></td><br><td valign="top">menu</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>width</strong></td><br><td valign="top">pre</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>align**</strong>、hspace、vspace<strong></strong></td><br><td valign="top">img</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top">align<strong>**、noshade、size、width</strong></td><br><td valign="top">hr</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top"><strong>align**</strong>、frameborder、scrolling、marginheight、marginwidth<strong></strong></td><br><td valign="top">iframe</td><br><td valign="top">使用CSS样式表替代</td><br></tr><br><tr><br><td valign="top">autosubmit*</td></tr></tbody></table></em><br><td valign="top">menu</td><br><td valign="top"></td><br><br><br><br></div>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/9b06d496/" rel="next" title="必备绝技--Hook大法( 整理 )">
+                <i class="fa fa-chevron-left"></i> 必备绝技--Hook大法( 整理 )
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/8286bdb4/" rel="prev" title="android笔记一：布局和基础控件大全（待完善）">
+                android笔记一：布局和基础控件大全（待完善） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">watcher</p>
+              <p class="site-description motion-element" itemprop="description">笨狗博客 互联网技术分享博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">watcher</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows,ntfs,权限," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="对于个人用户来说，虽然大家使用NTFS格式分区越来越多，其原因不过是流行的趋势和使用时间产品的碎片问题。 NTFS分区相对于FAT分区在安全性上做了相当大的改进。在windows服务器中应用光盘，有些东西，或许你该知道，NTFS文件夹的安全权限分配看看下面这篇文章：">
+<meta name="keywords" content="windows,ntfs,权限">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows服务器--NTFS文件夹的安全权限分配须知">
+<meta property="og:url" content="http://yoursite.com/2009/4d859901/index.html">
+<meta property="og:site_name" content="bengou&#39;s blog">
+<meta property="og:description" content="对于个人用户来说，虽然大家使用NTFS格式分区越来越多，其原因不过是流行的趋势和使用时间产品的碎片问题。 NTFS分区相对于FAT分区在安全性上做了相当大的改进。在windows服务器中应用光盘，有些东西，或许你该知道，NTFS文件夹的安全权限分配看看下面这篇文章：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-27T07:05:20.496Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows服务器--NTFS文件夹的安全权限分配须知">
+<meta name="twitter:description" content="对于个人用户来说，虽然大家使用NTFS格式分区越来越多，其原因不过是流行的趋势和使用时间产品的碎片问题。 NTFS分区相对于FAT分区在安全性上做了相当大的改进。在windows服务器中应用光盘，有些东西，或许你该知道，NTFS文件夹的安全权限分配看看下面这篇文章：">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2009/4d859901/"/>
+
+
+
+
+
+  <title>windows服务器--NTFS文件夹的安全权限分配须知 | bengou's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bengou's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">点滴记录，沉思总结，成长分享。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2009/4d859901/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="watcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bengou's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">windows服务器--NTFS文件夹的安全权限分配须知</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2009-02-14T00:20:52+08:00">
+                2009-02-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web安全/" itemprop="url" rel="index">
+                    <span itemprop="name">Web安全</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>对于个人用户来说，虽然大家使用NTFS格式分区越来越多，其原因不过是流行的趋势和使用时间产品的碎片问题。</p>
+<p>NTFS分区相对于FAT分区在安全性上做了相当大的改进。在windows服务器中应用光盘，有些东西，或许你该知道，NTFS文件夹的安全权限分配看看下面这篇文章：<br><a id="more"></a></p>
+<div class="MsoNormal" style="PADDING-LEFT: 30px; MARGIN-LEFT: 0cm; TEXT-INDENT: 0cm; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="color: #808080;"><strong><span lang="EN-US"><span>1、<span style="FONT-WEIGHT: normal; FONT-SIZE: 7pt; LINE-HEIGHT: normal; FONT-STYLE: normal; FONT-VARIANT: normal">? </span></span></span>**</strong><span style="font-family: 宋体;">安全权限是累积的，用户对资源的实际权限是所有用户和组从所有资源获得的，对该资源的总体权限（用户所属的所有组的用户权限和组权限）。</span><strong></strong></span></div><br><div class="MsoNormal" style="PADDING-LEFT: 30px; MARGIN-LEFT: 18pt; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="font-family: 仿宋_gb2312;"><span style="color: #808080;">例<span lang="EN-US">1</span>：<span lang="EN-US">A</span>用户属于<span lang="EN-US">GROUP</span>组，现设置为<span lang="EN-US">A</span>对<span lang="EN-US">TEST</span>文件夹只读，<span lang="EN-US">GROUP</span>组对<span lang="EN-US">TEST</span>文件夹读写，最终<span lang="EN-US">A</span>用户对<span lang="EN-US">TEST</span>目录是具有读写权限。</span></span></div><br><div class="MsoNormal" style="PADDING-LEFT: 30px; TEXT-INDENT: 18pt; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="font-family: 仿宋_gb2312;"><span style="color: #808080;">例<span lang="EN-US">2</span>：<span lang="EN-US">A</span>用户同时属于<span lang="EN-US">GROUP1</span>组和<span lang="EN-US">GROUP2</span>组，设置为<span lang="EN-US">GROUP1</span>对<span lang="EN-US">TEST</span>文件夹只读，<span lang="EN-US">GROUP2</span>对<span lang="EN-US">TEST</span>文件夹读写，最终<span lang="EN-US">A</span>用户获得了从<span lang="EN-US">GROUP1</span>组和<span lang="EN-US">GROUP2</span>组所具有的所有权限累积，对<span lang="EN-US">TEST</span>文件夹有了读和写的权限。<strong></strong></span></span></div><br><div class="MsoNormal" style="PADDING-LEFT: 30px; MARGIN-LEFT: 0cm; TEXT-INDENT: 0cm; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="color: #808080;"><span lang="EN-US"><span>2、<span style="FONT-WEIGHT: normal; FONT-SIZE: 7pt; LINE-HEIGHT: normal; FONT-STYLE: normal; FONT-VARIANT: normal">? </span></span></span><strong>**<span style="font-family: 宋体;">“拒绝”权限优先于“允许”权限。</span></strong></span></div><br><div class="MsoNormal" style="PADDING-LEFT: 30px; TEXT-INDENT: 18pt; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="font-family: 仿宋_gb2312;"><span style="color: #808080;">例如<span lang="EN-US">:</span>用户<span lang="EN-US">jack</span>同属于<span lang="EN-US">GROUP1</span>组和<span lang="EN-US">GROUP2</span>组。<span lang="EN-US">jack</span>的用户账号允许对<span lang="EN-US">test</span>文件夹具有“读取”访问，<span lang="EN-US">GROUP1</span>组也允许对<span lang="EN-US">test</span>文件夹的“读取”访问。但是，<span lang="EN-US">GROUP2</span>组却明确拒绝对<span lang="EN-US">test</span>文件夹的“读取”访问，这样，<span lang="EN-US">jack</span>就无法访问<span lang="EN-US">test</span>文件夹，因为“拒绝”权限优先于“允许”权限。</span></span></div><br><div class="MsoNormal" style="PADDING-LEFT: 30px; MARGIN-LEFT: 0cm; TEXT-INDENT: 0cm; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="color: #808080;"><strong><span lang="EN-US"><span>3、<span style="FONT-WEIGHT: normal; FONT-SIZE: 7pt; LINE-HEIGHT: normal; FONT-STYLE: normal; FONT-VARIANT: normal">?</span></span></span>**</strong><span style="font-family: 宋体;">子目录的“安全”访问权限受上层目录的“共享”权限影响，不管是否取消了继承。</span><strong></strong></span></div><br><div class="MsoBodyTextIndent" style="PADDING-LEFT: 30px"><span style="font-family: 宋体;"><span style="color: #808080;">可从一个应用例子来理解这句话，也可从此例子了解当同时设置共享和安全权限时的最终用户权限是怎样的。</span></span></div><br><div class="MsoNormal" style="PADDING-LEFT: 30px; TEXT-INDENT: 18pt; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="color: #808080;"><span style="font-family: 仿宋_gb2312;">例如，有一个</span><span lang="EN-US">PUBLIC</span><span style="font-family: 仿宋_gb2312;">的文件夹，组</span><span lang="EN-US">GROUP1</span><span style="font-family: 仿宋_gb2312;">和组</span><span lang="EN-US">GROUP2</span><span style="font-family: 仿宋_gb2312;">对此文件夹都有“读取”的权限。但有这样一个需求，</span><span lang="EN-US">GROUP1</span><span style="font-family: 仿宋_gb2312;">组需对</span><span lang="EN-US">PUBLIC</span><span style="font-family: 仿宋_gb2312;">文件夹底下的</span><span lang="EN-US">SUB</span><span style="font-family: 仿宋_gb2312;">子文件夹要有“修改”权限，有的人可能认为只要取消</span><span lang="EN-US">SUB</span><span style="font-family: 仿宋_gb2312;">文件夹的“继承”属性，再设置</span><span lang="EN-US">GROUP1</span><span style="font-family: 仿宋_gb2312;">组为可“修改”权限就可以了，但这样结果是</span><span lang="EN-US">GROUP1</span><span style="font-family: 仿宋_gb2312;">组还是只能对</span><span lang="EN-US">SUB</span><span style="font-family: 仿宋_gb2312;">文件夹只读。具体解决方法可以先在</span><span lang="EN-US">PUBLIC</span><span style="font-family: 仿宋_gb2312;">文件夹共享<strong>权限里设置</strong></span><span lang="EN-US">GPOUP1</span><span style="font-family: 仿宋_gb2312;">组“修改”，再取消</span><span lang="EN-US">SUB</span><span style="font-family: 仿宋_gb2312;">文件夹的“继承”属性，最后在</span><span lang="EN-US">SUB</span><span style="font-family: 仿宋_gb2312;">文件夹设置</span><span lang="EN-US">GROUP1</span><span style="font-family: 仿宋_gb2312;">组为“修改”即可达到上述目的。但这时可能有疑问了，这样设置后，</span><span lang="EN-US">GROUP1</span><span style="font-family: 仿宋_gb2312;">组不是对</span><span lang="EN-US">PUBLIC</span><span style="font-family: 仿宋_gb2312;">包括所有子文件夹都具有修改权限吗？其实刚才我们只是修改了</span><span lang="EN-US">PUBLIC</span><span style="font-family: 仿宋_gb2312;">文件夹的共享<strong>权限，并没有修改它的安全权限。说白一点，</strong></span><span lang="EN-US">PUBLIC</span><span style="font-family: 仿宋_gb2312;">上共享权限是起了一个“开关”的作用，若要添加某一用户或组对子目录的权限，就得相应的在上一级有设共享权限的地方把该用户或组的相应权限加上，就等于把“开关”打开。从这个例子也可以看出，因为</span><span lang="EN-US">“</span><span style="font-family: 仿宋_gb2312;">安全</span><span lang="EN-US">“</span><span style="font-family: 仿宋_gb2312;">属性总是取所有权限中最严格的，</span><span style="font-family: 仿宋_gb2312;">如果同时设置<span lang="EN-US">“</span>共享<span lang="EN-US">“</span>和<span lang="EN-US">“</span>安全<span lang="EN-US">“</span>则<span lang="EN-US">“</span>共享<span lang="EN-US">“</span>也要按<span lang="EN-US">“</span>安全<span lang="EN-US">“</span>设置取最严格的，因为<span lang="EN-US">“</span>安全<span lang="EN-US">“</span>的优先权更高。不过上面这段话也可视为是废话，呵呵，我的做法是不管三七二十一，先把最上级文件夹的“共享”权限设为<span lang="EN-US">everyone</span>完全控制，然后再对子文件夹的“安全”权限进行进一步设置即可。</span><strong></strong></span></div><br><div class="MsoNormal" style="PADDING-LEFT: 30px; MARGIN-LEFT: 0cm; TEXT-INDENT: 0cm; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="color: #808080;"><span lang="EN-US"><span>4、<span style="FONT-WEIGHT: normal; FONT-SIZE: 7pt; LINE-HEIGHT: normal; FONT-STYLE: normal; FONT-VARIANT: normal">? </span></span></span><strong>**<span style="font-family: 宋体;">“拒绝权限”的使用。</span></strong></span></div><br><div style="PADDING-LEFT: 30px; MARGIN: 0cm 0cm 6pt; TEXT-INDENT: 17.85pt; LINE-HEIGHT: 25pt"><span style="color: #808080;"><span style="font-family: 仿宋_gb2312;">在设置文件的安全性和前面设置共享权限时，在权限栏中都有<span lang="EN-US">“</span>拒绝<span lang="EN-US">“</span>一列<span lang="EN-US">,</span>这是微软针对某些应用需求而设计的</span><span style="font-family: 仿宋_gb2312;">，这同时也是第二点总结的一个延伸</span><span style="color: windowtext; font-family: 仿宋_gb2312;">。</span><span style="font-family: 仿宋_gb2312;">我们还是看一个实例：</span></span></div><br><div style="PADDING-LEFT: 30px; MARGIN: 0cm 0cm 6pt; TEXT-INDENT: 17.85pt; LINE-HEIGHT: 25pt"><span style="font-family: 仿宋_gb2312;"><span style="color: #808080;">比如有一个<span lang="EN-US">Public</span>目录，这个目录存放一些公共文件，可以允许<span lang="EN-US">Users</span>组成员读写，但是这个目录中还有一个“<span lang="EN-US">sub</span>”的子目录用来存放一些重要文件，只允许<span lang="EN-US">Users</span>组成员读取。</span></span></div><br><div style="PADDING-LEFT: 30px; MARGIN: 0cm 0cm 6pt; TEXT-INDENT: 17.85pt; LINE-HEIGHT: 25pt"><span style="color: #808080;"><span style="font-family: 仿宋_gb2312;">我们先设置<span lang="EN-US">Public</span>目录的安全权限为<span lang="EN-US">user</span>组可修改，然后再打开“<span lang="EN-US">Public</span>”下的“<span lang="EN-US">sub</span>”文件夹属性，打开“安全”选项卡，此时<span lang="EN-US">Users</span>组拥有“修改”的权限，允许权限显示灰色，表明该权限是从上一级目录“<span lang="EN-US">Public</span>”上传递下来的，单击“拒绝”中的“写入”，选中该项，单击“确定”，此时系统给出一个警告，提示“拒绝”的优先级要高于“允许”，单击“是”，此时<span lang="EN-US">Users</span>组成员再往<span lang="EN-US">“sub”</span>文件夹中写文件，就会遭到拒绝。</span><span style="FONT-SIZE: 15pt; FONT-FAMILY: " lang="EN-US">?</span></span></div><br><div style="PADDING-LEFT: 30px; MARGIN: 0cm 0cm 0pt; LINE-HEIGHT: 25pt"><span style="color: #808080;"><span style="FONT-SIZE: 15pt; FONT-FAMILY: " lang="EN-US">5、</span><strong><span style="font-family: 宋体;">一劳永逸，广播权限的用途。</span></strong></span></div><br><div style="PADDING-LEFT: 30px; MARGIN: 0cm 0cm 0pt; TEXT-INDENT: 27pt; LINE-HEIGHT: 25pt"><span style="color: #808080;"><span style="font-family: 仿宋_gb2312;">首先在企业环境里，用户端电脑出于安全考虑，系统盘一般为</span><span style="FONT-FAMILY: " lang="EN-US">user</span><span style="font-family: 仿宋_gb2312;">级，可能安装了一个应用软件后，在管理员账户底下可以运行，而在用户登录后软件却不能正常运行。而此时，大部份原因是由于软件运行所需的系统文件（比如动态链接库文件</span><span style="FONT-FAMILY: " lang="EN-US">Active </span><span style="font-family: 仿宋_gb2312;">控件</span></span></div><br><div style="PADDING-LEFT: 30px; MARGIN: 0cm 0cm 0pt; TEXT-INDENT: 27pt; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="color: #808080;"><span style="font-family: 仿宋_gb2312;">这时，可以通过如下方法排除故障并解决，首先用管理员账号登录用户计算机，先对应用软件所在文件夹添加当前用户的“读写”权限，再利用“重置所有子对象的权限并允许传播可继承权限”的功能将此用户的“读写”权限传播到所有子文件夹，然后再用当前普通用户登录计算机，看软件是否可以正常运行。如果还不行，可按照上述步骤依次对</span><span style="FONT-FAMILY: " lang="EN-US">documents and setting</span><span style="font-family: 仿宋_gb2312;">文件夹再添加当前用户“读写”权限并广播，这样一般可解决由访问权限问题引起的软件运行故障。最后，如果此时还不能正常运行应用软件，出于时间上的考虑，可以将系统盘根目录设为当前用户可读写，再广播到所有子文件夹，当然这样也带来了最大的安全隐患。<span style="font-size: x-small;">最后，需要说明一点，不要认为权限分配是一件再简单不过的事情，如果不小心，或对一些选项不了解，会让你感到非常郁闷或者事倍功半，因为你可能不清楚什么是“审核”？“所有者”是干什么用的？权限项目有没有必要等等问题。</span></span></span></div><br><div style="PADDING-LEFT: 30px; MARGIN: 0cm 0cm 0pt; TEXT-INDENT: 27pt; LINE-HEIGHT: 25pt; TEXT-ALIGN: justify"><span style="font-family: 仿宋_gb2312;"><span style="color: #808080;">本文出自 “</span><a href="http://donhuang.blog.51cto.com/" target="_blank" rel="noopener"><span style="color: #808080;">英年早瘦的IT博客</span></a><span style="color: #808080;">” 博客，请务必保留此出处</span><a href="http://donhuang.blog.51cto.com/268978/50106" target="_blank" rel="noopener"><span style="color: #808080;">http://donhuang.blog.51cto.com/268978/50106</span></a></span></div>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows/" rel="tag"># windows</a>
+          
+            <a href="/tags/ntfs/" rel="tag"># ntfs</a>
+          
+            <a href="/tags/权限/" rel="tag"># 权限</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2009/f3afe522/" rel="next" title="西单女孩--不平凡的卖艺生活">
+                <i class="fa fa-chevron-left"></i> 西单女孩--不平凡的卖艺生活
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2009/4d9a02f9/" rel="prev" title="《非诚勿扰》中的幽默睿智的征婚启事">
+                《非诚勿扰》中的幽默睿智的征婚启事 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">watcher</p>
+              <p class="site-description motion-element" itemprop="description">笨狗博客 互联网技术分享博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">watcher</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

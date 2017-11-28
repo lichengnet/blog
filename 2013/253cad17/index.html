@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="性能优化简介第一个原则：完成某件任务所需要的时间度量，性能即响应时间。提升每秒查询量(吞吐量优化)和降低响应时间是第二个原则：无法测量就无法有效优化。所以90%的精力放到测量响应时间。避免不合适的测量：错误的时间启动和停止测量；测量是聚合后的信息，而不是目标活动本身。 通过性能剖析进行优化性能剖析是测量和分析时间花费在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《高性能MySQL》——服务器性能分析">
+<meta property="og:url" content="http://yoursite.com/2013/253cad17/index.html">
+<meta property="og:site_name" content="bengou&#39;s blog">
+<meta property="og:description" content="性能优化简介第一个原则：完成某件任务所需要的时间度量，性能即响应时间。提升每秒查询量(吞吐量优化)和降低响应时间是第二个原则：无法测量就无法有效优化。所以90%的精力放到测量响应时间。避免不合适的测量：错误的时间启动和停止测量；测量是聚合后的信息，而不是目标活动本身。 通过性能剖析进行优化性能剖析是测量和分析时间花费在哪里的主要方法。通常两个步骤：测试任务所花费的时间；对结果进行统计和排序，将重要">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/uploads/2015/08/1.png">
+<meta property="og:updated_time" content="2017-11-28T08:49:04.532Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《高性能MySQL》——服务器性能分析">
+<meta name="twitter:description" content="性能优化简介第一个原则：完成某件任务所需要的时间度量，性能即响应时间。提升每秒查询量(吞吐量优化)和降低响应时间是第二个原则：无法测量就无法有效优化。所以90%的精力放到测量响应时间。避免不合适的测量：错误的时间启动和停止测量；测量是聚合后的信息，而不是目标活动本身。 通过性能剖析进行优化性能剖析是测量和分析时间花费在哪里的主要方法。通常两个步骤：测试任务所花费的时间；对结果进行统计和排序，将重要">
+<meta name="twitter:image" content="http://yoursite.com/uploads/2015/08/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2013/253cad17/"/>
+
+
+
+
+
+  <title>《高性能MySQL》——服务器性能分析 | bengou's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bengou's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">点滴记录，沉思总结，成长分享。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2013/253cad17/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="watcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bengou's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《高性能MySQL》——服务器性能分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-05-30T20:27:43+08:00">
+                2013-05-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="性能优化简介"><a href="#性能优化简介" class="headerlink" title="性能优化简介"></a>性能优化简介</h4><p>第一个原则：完成某件任务所需要的时间度量，性能即响应时间。<br>提升每秒查询量(吞吐量优化)和降低响应时间是<br>第二个原则：无法测量就无法有效优化。所以90%的精力放到测量响应时间。<br>避免不合适的测量：错误的时间启动和停止测量；测量是聚合后的信息，而不是目标活动本身。</p>
+<h4 id="通过性能剖析进行优化"><a href="#通过性能剖析进行优化" class="headerlink" title="通过性能剖析进行优化"></a>通过性能剖析进行优化</h4><p>性能剖析是测量和分析时间花费在哪里的主要方法。<br>通常两个步骤：测试任务所花费的时间；对结果进行统计和排序，将重要任务放到前面。<br>基于执行时间的分析：什么任务的执行时间最长<br>执行等待的分析：什么地方被堵塞的最长<br>performance schema</p>
+<h4 id="理解性能剖析"><a href="#理解性能剖析" class="headerlink" title="理解性能剖析"></a>理解性能剖析</h4><p>值得优化的查询：优化总响应时间不超过5%的查询是无意义的，优化的成本大于收益则停止优化；<br>异常情况：某些任务执行很少，但是每次都很慢，影响用户体验则需要优化；<br>未知的未知：任务总时间和实际测量到的时间之差，如果差很大则要特别注意；<br>被掩盖的细节：不要只相信平均值，可以利用直方图、百分比等。</p>
+<h4 id="进行性能剖析"><a href="#进行性能剖析" class="headerlink" title="进行性能剖析"></a>进行性能剖析</h4><p>除了数据库导致的性能问题，还有：<br>&gt; 外部资源，比如调用了外部的web服务或搜索引擎；<br>&gt; 应该需要处理大量数据 尤其是IO类的；<br>&gt; 昂贵的循环：比如正则表达式；<br>&gt; 低效的算法：比如暴力搜索查找列表。</p>
+<p>New Relic、xhprof、Ifp</p>
+<h4 id="剖析服务器负载"><a href="#剖析服务器负载" class="headerlink" title="剖析服务器负载"></a>剖析服务器负载</h4><p>慢查询：开启对性能影响几乎可以忽略，分析利器。<br>自顶向下分析，否则可能导致逆优化。使用pt-query-digest分析慢查询日志。</p>
+<h1 id="wget-percona-com-get-pt-query-digest"><a href="#wget-percona-com-get-pt-query-digest" class="headerlink" title="wget percona.com/get/pt-query-digest"></a>wget percona.com/get/pt-query-digest</h1><h1 id="chmod-u-x-pt-query-digest"><a href="#chmod-u-x-pt-query-digest" class="headerlink" title="chmod u+x pt-query-digest"></a>chmod u+x pt-query-digest</h1><h1 id="pt-query-digest-–limit-3-var-log-mysql-mysql-slow-log"><a href="#pt-query-digest-–limit-3-var-log-mysql-mysql-slow-log" class="headerlink" title="./pt-query-digest –limit=3 /var/log/mysql/mysql-slow.log"></a>./pt-query-digest –limit=3 /var/log/mysql/mysql-slow.log</h1><h1 id="Query-1-0-31-QPS-0-00x-concurrency-ID-0x3C255F3173ADB148-at-byte-22131719"><a href="#Query-1-0-31-QPS-0-00x-concurrency-ID-0x3C255F3173ADB148-at-byte-22131719" class="headerlink" title="Query 1: 0.31 QPS, 0.00x concurrency, ID 0x3C255F3173ADB148 at byte 22131719"></a>Query 1: 0.31 QPS, 0.00x concurrency, ID 0x3C255F3173ADB148 at byte 22131719</h1><h1 id="This-item-is-included-in-the-report-because-it-matches-–limit"><a href="#This-item-is-included-in-the-report-because-it-matches-–limit" class="headerlink" title="This item is included in the report because it matches –limit."></a>This item is included in the report because it matches –limit.</h1><h1 id="Scores-V-M-1-79"><a href="#Scores-V-M-1-79" class="headerlink" title="Scores: V/M = 1.79"></a>Scores: V/M = 1.79</h1><h1 id="Time-range-2015-08-24-06-25-13-to-14-36-22"><a href="#Time-range-2015-08-24-06-25-13-to-14-36-22" class="headerlink" title="Time range: 2015-08-24 06:25:13 to 14:36:22"></a>Time range: 2015-08-24 06:25:13 to 14:36:22</h1><h1 id="Attribute-pct-total-min-max-avg-95-stddev-median"><a href="#Attribute-pct-total-min-max-avg-95-stddev-median" class="headerlink" title="Attribute pct total min max avg 95% stddev median"></a>Attribute pct total min max avg 95% stddev median</h1><h1 id=""><a href="#" class="headerlink" title="============ === ======= ======= ======= ======= ======= ======= ======="></a>============ === ======= ======= ======= ======= ======= ======= =======</h1><h1 id="Count-15-9124"><a href="#Count-15-9124" class="headerlink" title="Count 15 9124"></a>Count 15 9124</h1><h1 id="Exec-time-17-46s-55us-7s-5ms-839us-95ms-301us"><a href="#Exec-time-17-46s-55us-7s-5ms-839us-95ms-301us" class="headerlink" title="Exec time 17 46s 55us 7s 5ms 839us 95ms 301us"></a>Exec time 17 46s 55us 7s 5ms 839us 95ms 301us</h1><h1 id="Lock-time-90-33s-20us-2s-4ms-73us-62ms-31us"><a href="#Lock-time-90-33s-20us-2s-4ms-73us-62ms-31us" class="headerlink" title="Lock time 90 33s 20us 2s 4ms 73us 62ms 31us"></a>Lock time 90 33s 20us 2s 4ms 73us 62ms 31us</h1><h1 id="Rows-sent-0-0-0-0-0-0-0-0"><a href="#Rows-sent-0-0-0-0-0-0-0-0" class="headerlink" title="Rows sent 0 0 0 0 0 0 0 0"></a>Rows sent 0 0 0 0 0 0 0 0</h1><h1 id="Rows-examine-9-7-09M-0-2-28k-814-73-1-96k-628-65-592-07"><a href="#Rows-examine-9-7-09M-0-2-28k-814-73-1-96k-628-65-592-07" class="headerlink" title="Rows examine 9 7.09M 0 2.28k 814.73 1.96k 628.65 592.07"></a>Rows examine 9 7.09M 0 2.28k 814.73 1.96k 628.65 592.07</h1><h1 id="Query-size-6-873-20k-98-98-98-98-0-98"><a href="#Query-size-6-873-20k-98-98-98-98-0-98" class="headerlink" title="Query size 6 873.20k 98 98 98 98 0 98"></a>Query size 6 873.20k 98 98 98 98 0 98</h1><h1 id="String"><a href="#String" class="headerlink" title="String:"></a>String:</h1><h1 id="Databases"><a href="#Databases" class="headerlink" title="Databases *"></a>Databases <strong><em>*</em></strong></h1><h1 id="Hosts-localhost"><a href="#Hosts-localhost" class="headerlink" title="Hosts localhost"></a>Hosts localhost</h1><h1 id="Users"><a href="#Users" class="headerlink" title="Users *"></a>Users <strong><em>*</em></strong></h1><h1 id="Query-time-distribution"><a href="#Query-time-distribution" class="headerlink" title="Query_time distribution"></a>Query_time distribution</h1><h1 id="1us"><a href="#1us" class="headerlink" title="1us"></a>1us</h1><h1 id="10us"><a href="#10us" class="headerlink" title="10us"></a>10us</h1><h1 id="100us"><a href="#100us" class="headerlink" title="100us"></a>100us</h1><h1 id="1ms"><a href="#1ms" class="headerlink" title="1ms"></a>1ms</h1><h1 id="10ms"><a href="#10ms" class="headerlink" title="10ms"></a>10ms</h1><h1 id="100ms"><a href="#100ms" class="headerlink" title="100ms"></a>100ms</h1><h1 id="1s"><a href="#1s" class="headerlink" title="1s"></a>1s</h1><h1 id="10s"><a href="#10s" class="headerlink" title="10s+"></a>10s+</h1><h1 id="Tables"><a href="#Tables" class="headerlink" title="Tables"></a>Tables</h1><h1 id="SHOW-TABLE-STATUS-FROM-shandalu-LIKE-‘sdl-arccache’-G"><a href="#SHOW-TABLE-STATUS-FROM-shandalu-LIKE-‘sdl-arccache’-G" class="headerlink" title="SHOW TABLE STATUS FROM shandalu LIKE ‘sdl_arccache’\G"></a>SHOW TABLE STATUS FROM <code>shandalu</code> LIKE ‘sdl_arccache’\G</h1><h1 id="SHOW-CREATE-TABLE-shandalu-sdl-arccache-G"><a href="#SHOW-CREATE-TABLE-shandalu-sdl-arccache-G" class="headerlink" title="SHOW CREATE TABLE shandalu.sdl_arccache\G"></a>SHOW CREATE TABLE <code>shandalu</code>.<code>sdl_arccache</code>\G</h1><p>Delete From <code>s_arccache</code> where md5hash=’50fe4ad9614673ae4484ad0d2d419847’ or uptime &lt; 1427438122\G</p>
+<h1 id="Converted-for-EXPLAIN"><a href="#Converted-for-EXPLAIN" class="headerlink" title="Converted for EXPLAIN"></a>Converted for EXPLAIN</h1><h1 id="EXPLAIN-50100-PARTITIONS"><a href="#EXPLAIN-50100-PARTITIONS" class="headerlink" title="EXPLAIN /!50100 PARTITIONS/"></a>EXPLAIN /<em>!50100 PARTITIONS</em>/</h1><p>select * from <code>s_arccache</code> where md5hash=’50fe4ad9614673ae4484ad0d2d419847’ or uptime &lt; 1427438122\G</p>
+<h4 id="剖析单条查询"><a href="#剖析单条查询" class="headerlink" title="剖析单条查询"></a>剖析单条查询</h4><h5 id="show-profile"><a href="#show-profile" class="headerlink" title="show profile"></a>show profile</h5><p><a href="/uploads/2015/08/1.png"><img src="/uploads/2015/08/1.png" alt="1"></a></p>
+<h5 id="show-status"><a href="#show-status" class="headerlink" title="show status"></a>show status</h5><p>在此观察整体的全局计算器粗略判断。</p>
+<h5 id="慢查询日志"><a href="#慢查询日志" class="headerlink" title="慢查询日志"></a>慢查询日志</h5><p>&nbsp;</p>
+<h4 id="诊断间歇性问题"><a href="#诊断间歇性问题" class="headerlink" title="诊断间歇性问题"></a>诊断间歇性问题</h4><p>慢查询日志有调sql怎么执行测试都没有问题，这是为什么呢？<br>可能问题：<br>&gt; 应用CURL访问外币的慢的服务器<br>&gt; memcached条目过期<br>&gt; DNS偶尔查询超时<br>&gt; 互斥锁争用造成短暂停顿<br>&gt; 并发超过某个阙值，InnoDB的扩展性导致优化时间增加</p>
+<p>单条查询问题OR服务器问题<br>方法一：show global status，每秒执行一次，监控其变化，生成图标，方便发现趋势变化；<br>方法二：show processlist，不停捕获线程状态，比如：freeing items locked等；<br>方法三：使用查询日志。</p>
+<h4 id="捕获诊断数据"><a href="#捕获诊断数据" class="headerlink" title="捕获诊断数据"></a>捕获诊断数据</h4><p>诊断触发器：选择合适的阙值；<br>收集什么：系统状态和利用率信息、mysql状态信息和tcpdump流量包；<br>解释结果：寻找排查问题。</p>
+<h4 id="诊断案例"><a href="#诊断案例" class="headerlink" title="诊断案例"></a>诊断案例</h4><p>监控线程数，分析过程：<br>&gt; 大部分是索引扫描或范围扫描，很少有全表扫描或表关联情况；<br>&gt; 每秒大约有20-100次排序，排序行大约1000-1200行；<br>&gt; 每秒12-90个临时表，3-5个磁盘临时表；<br>&gt; 没有表锁或查询缓存问题；<br>&gt; show innodb status，大多数在队列等待；<br>&gt; IO平均等待时间和队列长度都非常高。</p>
+<h4 id="其他剖析工具"><a href="#其他剖析工具" class="headerlink" title="其他剖析工具"></a>其他剖析工具</h4><p>user_statistics表<br>strace</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/61eb4909/" rel="next" title="《高性能MySQL》——基准测试">
+                <i class="fa fa-chevron-left"></i> 《高性能MySQL》——基准测试
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/eb1ab578/" rel="prev" title="《高性能MySQL》——schema与数据类型优化">
+                《高性能MySQL》——schema与数据类型优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">watcher</p>
+              <p class="site-description motion-element" itemprop="description">笨狗博客 互联网技术分享博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#性能优化简介"><span class="nav-number">1.</span> <span class="nav-text">性能优化简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过性能剖析进行优化"><span class="nav-number">2.</span> <span class="nav-text">通过性能剖析进行优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#理解性能剖析"><span class="nav-number">3.</span> <span class="nav-text">理解性能剖析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进行性能剖析"><span class="nav-number">4.</span> <span class="nav-text">进行性能剖析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#剖析服务器负载"><span class="nav-number">5.</span> <span class="nav-text">剖析服务器负载</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#wget-percona-com-get-pt-query-digest"><span class="nav-number"></span> <span class="nav-text">wget percona.com/get/pt-query-digest</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#chmod-u-x-pt-query-digest"><span class="nav-number"></span> <span class="nav-text">chmod u+x pt-query-digest</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pt-query-digest-–limit-3-var-log-mysql-mysql-slow-log"><span class="nav-number"></span> <span class="nav-text">./pt-query-digest –limit=3 /var/log/mysql/mysql-slow.log</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Query-1-0-31-QPS-0-00x-concurrency-ID-0x3C255F3173ADB148-at-byte-22131719"><span class="nav-number"></span> <span class="nav-text">Query 1: 0.31 QPS, 0.00x concurrency, ID 0x3C255F3173ADB148 at byte 22131719</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#This-item-is-included-in-the-report-because-it-matches-–limit"><span class="nav-number"></span> <span class="nav-text">This item is included in the report because it matches –limit.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Scores-V-M-1-79"><span class="nav-number"></span> <span class="nav-text">Scores: V/M = 1.79</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Time-range-2015-08-24-06-25-13-to-14-36-22"><span class="nav-number"></span> <span class="nav-text">Time range: 2015-08-24 06:25:13 to 14:36:22</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Attribute-pct-total-min-max-avg-95-stddev-median"><span class="nav-number"></span> <span class="nav-text">Attribute pct total min max avg 95% stddev median</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#"><span class="nav-number"></span> <span class="nav-text">============ === ======= ======= ======= ======= ======= ======= =======</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Count-15-9124"><span class="nav-number"></span> <span class="nav-text">Count 15 9124</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Exec-time-17-46s-55us-7s-5ms-839us-95ms-301us"><span class="nav-number"></span> <span class="nav-text">Exec time 17 46s 55us 7s 5ms 839us 95ms 301us</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lock-time-90-33s-20us-2s-4ms-73us-62ms-31us"><span class="nav-number"></span> <span class="nav-text">Lock time 90 33s 20us 2s 4ms 73us 62ms 31us</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Rows-sent-0-0-0-0-0-0-0-0"><span class="nav-number"></span> <span class="nav-text">Rows sent 0 0 0 0 0 0 0 0</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Rows-examine-9-7-09M-0-2-28k-814-73-1-96k-628-65-592-07"><span class="nav-number"></span> <span class="nav-text">Rows examine 9 7.09M 0 2.28k 814.73 1.96k 628.65 592.07</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Query-size-6-873-20k-98-98-98-98-0-98"><span class="nav-number"></span> <span class="nav-text">Query size 6 873.20k 98 98 98 98 0 98</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#String"><span class="nav-number"></span> <span class="nav-text">String:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Databases"><span class="nav-number"></span> <span class="nav-text">Databases *</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hosts-localhost"><span class="nav-number"></span> <span class="nav-text">Hosts localhost</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Users"><span class="nav-number"></span> <span class="nav-text">Users *</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Query-time-distribution"><span class="nav-number"></span> <span class="nav-text">Query_time distribution</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1us"><span class="nav-number"></span> <span class="nav-text">1us</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10us"><span class="nav-number"></span> <span class="nav-text">10us</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#100us"><span class="nav-number"></span> <span class="nav-text">100us</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1ms"><span class="nav-number"></span> <span class="nav-text">1ms</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10ms"><span class="nav-number"></span> <span class="nav-text">10ms</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#100ms"><span class="nav-number"></span> <span class="nav-text">100ms</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1s"><span class="nav-number"></span> <span class="nav-text">1s</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10s"><span class="nav-number"></span> <span class="nav-text">10s+</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tables"><span class="nav-number"></span> <span class="nav-text">Tables</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SHOW-TABLE-STATUS-FROM-shandalu-LIKE-‘sdl-arccache’-G"><span class="nav-number"></span> <span class="nav-text">SHOW TABLE STATUS FROM shandalu LIKE ‘sdl_arccache’\G</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SHOW-CREATE-TABLE-shandalu-sdl-arccache-G"><span class="nav-number"></span> <span class="nav-text">SHOW CREATE TABLE shandalu.sdl_arccache\G</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Converted-for-EXPLAIN"><span class="nav-number"></span> <span class="nav-text">Converted for EXPLAIN</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EXPLAIN-50100-PARTITIONS"><span class="nav-number"></span> <span class="nav-text">EXPLAIN /!50100 PARTITIONS/</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#剖析单条查询"><span class="nav-number">1.</span> <span class="nav-text">剖析单条查询</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#show-profile"><span class="nav-number">1.1.</span> <span class="nav-text">show profile</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#show-status"><span class="nav-number">1.2.</span> <span class="nav-text">show status</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#慢查询日志"><span class="nav-number">1.3.</span> <span class="nav-text">慢查询日志</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#诊断间歇性问题"><span class="nav-number">2.</span> <span class="nav-text">诊断间歇性问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#捕获诊断数据"><span class="nav-number">3.</span> <span class="nav-text">捕获诊断数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#诊断案例"><span class="nav-number">4.</span> <span class="nav-text">诊断案例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他剖析工具"><span class="nav-number">5.</span> <span class="nav-text">其他剖析工具</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">watcher</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

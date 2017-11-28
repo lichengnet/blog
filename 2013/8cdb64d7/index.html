@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="索引优化应该是针对查询性能优化最有效的手段了。 索引基础mysql只能高效的使用最左边的前缀列，创建一个包含两列的索引和创建两个只包含一列的索引是打不相同的：ORM无法有效处理索引。 索引的类型B-Tree索引大多数索引使用的是此类型索引（innodb使用的B+Tree）；适用情况：全值匹配、匹配最左前缀、匹配列前缀、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《高性能MySQL》——创建高性能的索引">
+<meta property="og:url" content="http://yoursite.com/2013/8cdb64d7/index.html">
+<meta property="og:site_name" content="bengou&#39;s blog">
+<meta property="og:description" content="索引优化应该是针对查询性能优化最有效的手段了。 索引基础mysql只能高效的使用最左边的前缀列，创建一个包含两列的索引和创建两个只包含一列的索引是打不相同的：ORM无法有效处理索引。 索引的类型B-Tree索引大多数索引使用的是此类型索引（innodb使用的B+Tree）；适用情况：全值匹配、匹配最左前缀、匹配列前缀、匹配范围值、精确匹配某一列并匹配另外一列、只访问索引的查询、前面order by">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-27T10:15:28.224Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《高性能MySQL》——创建高性能的索引">
+<meta name="twitter:description" content="索引优化应该是针对查询性能优化最有效的手段了。 索引基础mysql只能高效的使用最左边的前缀列，创建一个包含两列的索引和创建两个只包含一列的索引是打不相同的：ORM无法有效处理索引。 索引的类型B-Tree索引大多数索引使用的是此类型索引（innodb使用的B+Tree）；适用情况：全值匹配、匹配最左前缀、匹配列前缀、匹配范围值、精确匹配某一列并匹配另外一列、只访问索引的查询、前面order by">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2013/8cdb64d7/"/>
+
+
+
+
+
+  <title>《高性能MySQL》——创建高性能的索引 | bengou's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">bengou's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">点滴记录，沉思总结，成长分享。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2013/8cdb64d7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="watcher">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="bengou's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《高性能MySQL》——创建高性能的索引</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2013-06-12T11:59:50+08:00">
+                2013-06-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>索引优化应该是针对查询性能优化最有效的手段了。</p>
+<h4 id="索引基础"><a href="#索引基础" class="headerlink" title="索引基础"></a>索引基础</h4><p>mysql只能高效的使用最左边的前缀列，创建一个包含两列的索引和创建两个只包含一列的索引是打不相同的：<br>ORM无法有效处理索引。</p>
+<h4 id="索引的类型"><a href="#索引的类型" class="headerlink" title="索引的类型"></a>索引的类型</h4><h5 id="B-Tree索引"><a href="#B-Tree索引" class="headerlink" title="B-Tree索引"></a>B-Tree索引</h5><p>大多数索引使用的是此类型索引（innodb使用的B+Tree）；<br>适用情况：全值匹配、匹配最左前缀、匹配列前缀、匹配范围值、精确匹配某一列并匹配另外一列、只访问索引的查询、前面order by的情况；<br>应用限制：无法索引最多列的查询、不能跳过索引列、如果某列是范围查询，则右边列无法使用索引优化查找。</p>
+<h5 id="哈希索引"><a href="#哈希索引" class="headerlink" title="哈希索引"></a>哈希索引</h5><p>通过计算列值的hash作索引，memory可显式支持哈希索引，如有重复值，链表存放。<br>索引结构紧凑，速度很快，但是也有限制：<br>&gt; 因为只保存hash和行指针，所以必须要再读取行；<br>&gt; 不是按索引值顺序存储，所以也无法用于排序；<br>&gt; 无法支持部分查找；<br>&gt; 只支持等值比较查询；<br>&gt; 如果哈希冲突，则需遍历链表，冲突越多，代价越大。</p>
+<p>如果有必要，可以创建自定义哈希索引，CRC32[FNV64]函数生成哈希保存（触发器更新更方便）SHA1和md5生成的字符串效率要低很多。<br>多么简单的一条语句：<br>select conv(right(md5(‘www.mysql.com’),16),16,10) as hash64</p>
+<h5 id="空间数据索引R-TREE"><a href="#空间数据索引R-TREE" class="headerlink" title="空间数据索引R-TREE"></a>空间数据索引R-TREE</h5><p>Myisam表支持空间索引，无需要前缀查询，但是支持不够完善。</p>
+<h5 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a>全文索引</h5><p>适用于匹配二非where，后续章节详细讨论。</p>
+<h5 id="其他索引"><a href="#其他索引" class="headerlink" title="其他索引"></a>其他索引</h5><p>聚簇索引、覆盖索引等。</p>
+<h4 id="索引的优点"><a href="#索引的优点" class="headerlink" title="索引的优点"></a>索引的优点</h4><p>&gt; 大大减少了服务器需要扫描的数据量；<br>&gt; 帮助服务器避免排序和临时表；<br>&gt; 将随机IO变为顺序IO。<br>太小的表：全盘扫描更高效；中大型表，索引很有效；超大型表，就要考虑代价了（分区技术、块级元数据等更好些）。</p>
+<h4 id="高性能的索引策略"><a href="#高性能的索引策略" class="headerlink" title="高性能的索引策略"></a>高性能的索引策略</h4><h5 id="独立的列"><a href="#独立的列" class="headerlink" title="独立的列"></a>独立的列</h5><p>select * from table where field+1=5 无法使用索引</p>
+<h5 id="前缀索引和索引选择性"><a href="#前缀索引和索引选择性" class="headerlink" title="前缀索引和索引选择性"></a>前缀索引和索引选择性</h5><p>足够长的前缀保证较高的选择性，又不能太长（空间太大）；<br>计算方法：select count(distinct left(city,3))/count(<em>) as c1,count(distinct left(city,4))/count(</em>) as c2 from table<br>优点：更小更快的索引；<br>缺点：无法order by和group by，也无法使用前缀索引做覆盖索引。</p>
+<h5 id="多列索引"><a href="#多列索引" class="headerlink" title="多列索引"></a>多列索引</h5><p>&gt; 多个索引做相互操作时，需要一个包含所有相关列的多列索引。<br>&gt; 多个索引做联合操作时，通常会耗费大量CPU和内存资源在算法的缓存、排序和合并操作上。</p>
+<h5 id="选择合适的索引顺序"><a href="#选择合适的索引顺序" class="headerlink" title="选择合适的索引顺序"></a><span style="color: #444444; font-family: 'microsoft yahei', 'Times New Roman', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 20px;">选择合适的索引顺序</span></h5><p>多列B-Tree索引，索引列的顺序意味着索引首先按照最左列排序，其次是第二列等等。多列索引顺序至关重要。<br>经验法则：不考虑排序和分组时，将选择性最高的列放到索引最前列。</p>
+<h5 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h5><p>并不是索引类型，是一种数据存储方式。因为聚簇索引就是索引的表<br>myisam中主键索引与普通索引的区别就是唯一非空索引；innodb中，主键是聚簇索引，二级索引则不是。<br>顺序主键肯定是要比随机主键有更好的性能，但是在高并发情况下，可能导致auto_increment的争用。</p>
+<h5 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h5><p>如果一个索引包含所有需要查询的值，我们就称之为覆盖索引；<br>只有b-tree索引可以，也不是所有的引擎都支持覆盖索引</p>
+<h5 id="使用索引扫描来做排序"><a href="#使用索引扫描来做排序" class="headerlink" title="使用索引扫描来做排序"></a>使用索引扫描来做排序</h5><p>如果一个索引即满足排序又满足查找行，这样是最好的；索引顺序和order by 完全一致时，才能够使用索引来做结果排序；关联多张表，第一张表order by才有效（常量条件也可以，但范围条件不行）。</p>
+<h5 id="压缩索引"><a href="#压缩索引" class="headerlink" title="压缩索引"></a>压缩索引</h5><p>myisam支持，通常是对字符串压缩。方法：第二个的值使用数字替换相同字符串表示。但是查找变慢，尤其是倒序扫描。create table时指定pack_keys时可指定压缩方式。</p>
+<h5 id="冗余和重复索引"><a href="#冗余和重复索引" class="headerlink" title="冗余和重复索引"></a>冗余和重复索引</h5><p>（A,B）的索引包含（A）的索引，通常不需要在给A设置索引，但是为了适应更好的查询，有时可以有重复索引。</p>
+<h5 id="未使用的索引"><a href="#未使用的索引" class="headerlink" title="未使用的索引"></a>未使用的索引</h5><p>使用工具分析：打开userstates变量分析使用频率来移除未使用的索引。</p>
+<h5 id="索引和锁"><a href="#索引和锁" class="headerlink" title="索引和锁"></a>索引和锁</h5><p>索引理论上可以减少锁的使用。</p>
+<h5 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h5><p>支持多种过滤条件：通常把范围查询列放到索引的最后，使用in()来避免被略过的列而无法使用索引，但是in不应该太多。<br>避免多个范围条件：范围条件后即无法再使用索引了（尽可能将范围编程等值查询）mysql以后支持松散索引扫描的话则就不必在乎in的使用了。<br>优化排序：对于limit大慢的问题：用户无法看到很靠后的结果或者延迟关联（select cols from t inner join （select &lt;primary key cols&gt; from profiles where ..order.. limit 10000,10）as x using(primary key cols)）</p>
+<h5 id="维护索引和表"><a href="#维护索引和表" class="headerlink" title="维护索引和表"></a>维护索引和表</h5><p>myisam使用的精确计数；innodb使用的估算，在变化超过十六分之一时或插入20亿数据时会触发重新统计。</p>
+<h5 id="减少索引和磁盘的碎片"><a href="#减少索引和磁盘的碎片" class="headerlink" title="减少索引和磁盘的碎片"></a>减少索引和磁盘的碎片</h5><p>数据存储的碎片比索引更加复杂。行碎片、行间碎片、剩余空间碎片。<br>innodb因为会移动短小的行并重写到一个片段中所以不会出现短小的行碎片。<br>通常可以使用：optimize table 导出导入 删除索引创建索引。</p>
+<p>&nbsp;</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/eb1ab578/" rel="next" title="《高性能MySQL》——schema与数据类型优化">
+                <i class="fa fa-chevron-left"></i> 《高性能MySQL》——schema与数据类型优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/5d5ae4ac/" rel="prev" title="正则表达式——非捕获、前瞻、后顾、负前瞻、负后顾和引用">
+                正则表达式——非捕获、前瞻、后顾、负前瞻、负后顾和引用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">watcher</p>
+              <p class="site-description motion-element" itemprop="description">笨狗博客 互联网技术分享博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#索引基础"><span class="nav-number">1.</span> <span class="nav-text">索引基础</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#索引的类型"><span class="nav-number">2.</span> <span class="nav-text">索引的类型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#B-Tree索引"><span class="nav-number">2.1.</span> <span class="nav-text">B-Tree索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#哈希索引"><span class="nav-number">2.2.</span> <span class="nav-text">哈希索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#空间数据索引R-TREE"><span class="nav-number">2.3.</span> <span class="nav-text">空间数据索引R-TREE</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#全文索引"><span class="nav-number">2.4.</span> <span class="nav-text">全文索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他索引"><span class="nav-number">2.5.</span> <span class="nav-text">其他索引</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#索引的优点"><span class="nav-number">3.</span> <span class="nav-text">索引的优点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高性能的索引策略"><span class="nav-number">4.</span> <span class="nav-text">高性能的索引策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#独立的列"><span class="nav-number">4.1.</span> <span class="nav-text">独立的列</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#前缀索引和索引选择性"><span class="nav-number">4.2.</span> <span class="nav-text">前缀索引和索引选择性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#多列索引"><span class="nav-number">4.3.</span> <span class="nav-text">多列索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#选择合适的索引顺序"><span class="nav-number">4.4.</span> <span class="nav-text">选择合适的索引顺序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#聚簇索引"><span class="nav-number">4.5.</span> <span class="nav-text">聚簇索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#覆盖索引"><span class="nav-number">4.6.</span> <span class="nav-text">覆盖索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用索引扫描来做排序"><span class="nav-number">4.7.</span> <span class="nav-text">使用索引扫描来做排序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#压缩索引"><span class="nav-number">4.8.</span> <span class="nav-text">压缩索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#冗余和重复索引"><span class="nav-number">4.9.</span> <span class="nav-text">冗余和重复索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#未使用的索引"><span class="nav-number">4.10.</span> <span class="nav-text">未使用的索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#索引和锁"><span class="nav-number">4.11.</span> <span class="nav-text">索引和锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#案例"><span class="nav-number">4.12.</span> <span class="nav-text">案例</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#维护索引和表"><span class="nav-number">4.13.</span> <span class="nav-text">维护索引和表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#减少索引和磁盘的碎片"><span class="nav-number">4.14.</span> <span class="nav-text">减少索引和磁盘的碎片</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">watcher</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
